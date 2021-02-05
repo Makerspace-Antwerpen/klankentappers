@@ -11,6 +11,16 @@
 
 import fileinput
 import math
+import serial
+
+ser = serial.Serial(
+        port='/dev/ttyACM0', \
+        baudrate=9600, \
+        parity=serial.PARITY_NONE, \
+        stopbits=serial.STOPBITS_ONE, \
+        bytesize=serial.EIGHTBITS,\
+        timeout=0)
+
 
 class DFTPair:
     def __init__(self, freq, amp):
@@ -48,7 +58,7 @@ def calcDBaFromDFT(dft):
     for dftPair in dft:
         if dftPair.freq == 0:
             continue
-        db = calcDb(dftPair.amp)
+        db = calcDb(dftPair.amp*0.01)
         weight = dbaWeight(dftPair.freq)
         #print("freq: " + str(dftPair.freq) + " weight: " + str(weight))
         weightedDb = db + weight
@@ -89,7 +99,11 @@ with fileinput.input() as f_input:
 
                 if stepCount > 33 or freq == 0:
                     db = calcDBaFromDFT(nextDFT)
-                    print(db)
+                    ser.write(1)
+                    rawDuino = str(ser.readline())
+                    split1 = rawDuino.split("'")
+                    duinoVal = split1[1].split("\\")[0]
+                    print(str(db) + " " + duinoVal)
                     nextDFT.clear()
                     #print(nextOctaveList)
                     nextOctaveList.clear()
