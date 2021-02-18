@@ -56,7 +56,7 @@ def freqBinToOct(freqBin): #needs mod to take in amplitude correction.
 def calcDBaFromDFT(dft):
     subtotal = 0
     for dftPair in dft:
-        if dftPair.freq == 0:
+        if dftPair.freq <= 0:
             continue
         db = calcDb(dftPair.amp*0.01)
         weight = dbaWeight(dftPair.freq)
@@ -68,7 +68,7 @@ def calcDBaFromDFT(dft):
     if subtotal == 0: # it's ugly I know. 
         subtotal = 1
     #print("subtotal: " + str(subtotal))
-    return math.log(subtotal,10)*10;
+    return math.log(subtotal,10)*10
 
 freqList = [ 11.2 , 14.1 , 17.8 , 22.4 , 28.2 , 35.5 , 44.7 , 56.2 , 70.8 , 89.1 , 112 , 141 , 178 ,
         224 , 282 , 355 , 447 , 562 , 708 , 891 , 1122 , 1413 , 1778 , 2239 , 2818 , 3548 ,
