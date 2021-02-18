@@ -10,4 +10,4 @@ set xlabel "Referentie dbA"
 set ylabel "Berekening dbA"
 set key title DATAFILE
 
-plot [0:120][0:120] DATAFILE u 2:1 notitle
+plot [0:120][0:120] DATAFILE u 2:1 notitle, x
