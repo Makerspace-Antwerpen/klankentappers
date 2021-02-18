@@ -9,6 +9,16 @@ from scipy import signal
 import numpy as np
 import sounddevice as sd
 
+import serial
+
+ser = serial.Serial(
+        port='/dev/ttyACM0', \
+        baudrate=9600, \
+        parity=serial.PARITY_NONE, \
+        stopbits=serial.STOPBITS_ONE, \
+        bytesize=serial.EIGHTBITS,\
+        timeout=0)
+
 
 usage_line = ' press <enter> to quit, +<enter> or -<enter> to change scaling '
 
@@ -102,7 +112,11 @@ try:
             outdata = signal.lfilter(b_vals, a_vals, indata)
             rms = np.sqrt(np.mean(outdata**2))
             db = calcDb(rms) + 25
-            print(db)
+            ser.write(1)
+            rawDuino = str(ser.readline())
+            split1 = rawDuino.split("'")
+            duinoVal = split1[1].split("\\")[0]
+            print(str(db) + " " + str(duinoVal) )
 
         #     magnitude = np.abs(np.fft.rfft(indata[:, 0], n=fftsize))
         #     magnitude *= args.gain / fftsize
