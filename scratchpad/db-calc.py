@@ -3,12 +3,12 @@ import math
 
 def calcRa(freq):
     ra = (148693636 * freq**4)/((freq**2 + 424.36) * math.sqrt((freq**2 + 11599.29)*(freq**2 + 544496.41)) * (freq**2 + 148693636))
-    return ra;
+    return ra
 
 def dbaWeight(freq):
     ra = calcRa(freq)
     a = (20 * math.log(ra,10)) + 2 #- ( 20 * math.log(calcRa(1000),10))
-    return a;
+    return a
     
 def calcDb(amp):
     if amp == 0:
