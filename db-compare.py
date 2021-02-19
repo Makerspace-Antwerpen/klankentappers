@@ -53,7 +53,9 @@ def calcDBAfromInput(input):
     weightedInput = iir.applyIIR(input)
     balancedInput = weightedInput - np.mean(weightedInput)
     rms = np.sqrt(np.mean(balancedInput**2))
-    dba = calcDb(rms/0.041609445060915747) + 92 # DB correction factor. Mic specific
+    # infineon callibrate: 0.041609445060915747 at 92 db
+    # vesper callibrate: 0.04619286932250245 at 92 db
+    dba = calcDb(rms/0.04619286932250245) + 92 # DB correction factor. Mic specific
     return dba
 
 
