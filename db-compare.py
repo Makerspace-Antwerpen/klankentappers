@@ -12,6 +12,8 @@ from iir import IIR
 
 duino = ArduinoSerDBA(9600,'/dev/ttyACM0')
 
+# these vallues where extracted from https://github.com/ikostoski/esp32-i2s-slm/blob/master/esp32-i2s-slm.ino#L158
+# working on calculations to create better values for IIR filter
 a_vals = [1.0, -1.997675693595542, 0.997677044195563]
 b_vals = [1.001240684967527, -1.996936108836337, 0.995703101823006]
 iir = IIR(a_vals, b_vals)
@@ -50,11 +52,18 @@ def calcDb(amp):
 
 
 def calcDBAfromInput(input):
+    # apply flattening
     weightedInput = iir.applyIIR(input)
+    # get rid of any dc shift
     balancedInput = weightedInput - np.mean(weightedInput)
     rms = np.sqrt(np.mean(balancedInput**2))
     # infineon callibrate: 0.041609445060915747 at 92 db
     # vesper callibrate: 0.04619286932250245 at 92 db
+
+    # Callibration vallues are created with the micCal.py script
+    # stable noise source and callibrated db meter are required
+    # inserted vallue is the average rms at a certain noise level
+    # this noise level is then added to end result to get db measurement
     dba = calcDb(rms/0.041609445060915747) + 92 # DB correction factor. Mic specific
     return dba
 
@@ -66,7 +75,7 @@ try:
             print('\x1b[34;40m', text.center(args.columns, '#'),
                   '\x1b[0m', sep='')
         if any(indata):
-            flatData = indata.flatten()
+            flatData = indata.flatten() # input is 2d array. making 1d array from it
             dba = calcDBAfromInput(flatData)
             duinoVal = duino.readSerDBA()
             print(str(dba) + " " + str(duinoVal+2))
