@@ -8,8 +8,13 @@ from scipy import signal
 import numpy as np
 import sounddevice as sd
 from arduinoSer import ArduinoSerDBA
+from iir import IIR
 
 duino = ArduinoSerDBA(9600,'/dev/ttyACM0')
+
+a_vals = [1.0, -1.997675693595542, 0.997677044195563]
+b_vals = [1.001240684967527, -1.996936108836337, 0.995703101823006]
+iir = IIR(a_vals, b_vals)
 
 
 def int_or_str(text):
@@ -43,21 +48,20 @@ def calcDb(amp):
     db = 20 * math.log(amp/0.00002,10)
     return db
 
-a_vals = [1.0, -1.997675693595542, 0.997677044195563]
-b_vals = [1.001240684967527, -1.996936108836337, 0.995703101823006]
-global zi
-zi = [4.68360611, -4.67593804] #np.array(signal.lfilter_zi(b_vals,a_vals))
 
-def applyDBAweighting(input):
-    global zi
-    outdata, zi = signal.lfilter(b_vals, a_vals, input, -1, zi)
-    return outdata
+# global zi
+# zi = [4.68360611, -4.67593804] #np.array(signal.lfilter_zi(b_vals,a_vals))
+
+# def applyDBAweighting(input):
+#     global zi
+#     outdata, zi = signal.lfilter(b_vals, a_vals, input, -1, zi)
+#     return outdata
 
 
 def calcDBAfromInput(input):
-    weightedInput = applyDBAweighting(input)
+    weightedInput = iir.applyIIR(input)
     rms = np.sqrt(np.mean(weightedInput**2))
-    dba = calcDb(rms) + 21
+    dba = calcDb(rms) + 21 # DB correction factor. Mic specific
     return dba
 
 
@@ -71,15 +75,25 @@ try:
             flatData = indata.flatten()
             dba = calcDBAfromInput(flatData)
             duinoVal = duino.readSerDBA()
-            print(str(dba) + " " + str(duinoVal) )
+            print(str(dba) + " " + str(duinoVal))
+
+
+            
 
     with sd.InputStream(device=args.device, channels=1, callback=callback,
                         blocksize=6000,
                         samplerate=48000):
+
+
+
         while True:
             response = input()
             if response in ('', 'q', 'Q'):
                 break
+
+
+
+            
 except KeyboardInterrupt:
     parser.exit('Interrupted by user')
 except Exception as e:
