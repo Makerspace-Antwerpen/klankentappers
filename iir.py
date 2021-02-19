@@ -14,4 +14,5 @@ class IIR:
 
     def applyIIR(self, input):
         outdata, self.zi = signal.lfilter(self.b_vals, self.a_vals, input, -1, self.zi)
+        #outdata = signal.lfilter(self.b_vals, self.a_vals, input, -1)
         return outdata

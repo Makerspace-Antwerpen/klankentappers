@@ -17,5 +17,11 @@ class ArduinoSerDBA():
         rawDuino = str(self.ser.readline())
         split1 = rawDuino.split("'")
         duinoVal = split1[1].split("\\")[0]
-        return duinoVal
+        val = 0
+        try:
+            val = float(duinoVal)
+        except Exception as e:
+            return 0
+    
+        return val
 

@@ -41,21 +41,8 @@ parser.add_argument(
 args = parser.parse_args(remaining)
 
 
-
-def calcDb(amp):
-    if amp == 0:
-        return 0
-    db = 20 * math.log(amp,10)
-    return db
-
-
-def calcDBAfromInput(input):
-    weightedInput = iir.applyIIR(input)
-    balancedInput = weightedInput - np.mean(weightedInput)
-    rms = np.sqrt(np.mean(balancedInput**2))
-    dba = calcDb(rms/0.041609445060915747) + 92 # DB correction factor. Mic specific
-    return dba
-
+averageRMS = float(0)
+averageDB = float(0)
 
 try:
     def callback(indata, frames, time, status):
@@ -64,10 +51,15 @@ try:
             print('\x1b[34;40m', text.center(args.columns, '#'),
                   '\x1b[0m', sep='')
         if any(indata):
+            global averageDB
+            global averageRMS
             flatData = indata.flatten()
-            dba = calcDBAfromInput(flatData)
+            weightedInput = iir.applyIIR(flatData)
+            rms = np.sqrt(np.mean(weightedInput**2))
             duinoVal = duino.readSerDBA()
-            print(str(dba) + " " + str(duinoVal+2))
+            averageDB = (0.9 * averageDB) + (0.1 * duinoVal)
+            averageRMS = (0.9 * averageRMS) + (0.1 * rms)
+            print(str(averageRMS) + " " + str(averageDB))
 
 
             
@@ -85,7 +77,7 @@ try:
 
 
 
-
+            
 except KeyboardInterrupt:
     parser.exit('Interrupted by user')
 except Exception as e:
