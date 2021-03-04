@@ -14,9 +14,16 @@ duino = ArduinoSerDBA(9600,'/dev/ttyACM0')
 
 # these vallues where extracted from https://github.com/ikostoski/esp32-i2s-slm/blob/master/esp32-i2s-slm.ino#L158
 # working on calculations to create better values for IIR filter
-a_vals = [1.0, -1.997675693595542, 0.997677044195563]
-b_vals = [1.001240684967527, -1.996936108836337, 0.995703101823006]
-iir = IIR(a_vals, b_vals)
+# infineon flat vals
+#a_vals_flat = [1.0, -1.997675693595542, 0.997677044195563]
+#b_vals_flat = [1.001240684967527, -1.996936108836337, 0.995703101823006]
+# vesper flat vals
+a_vals_flat = [1.000000000000000, -0.767094031944789, 0.147079000369609]
+b_vals_flat = [-2.596485872362707e-01, -1.485669912567066e-01, -2.124706303313597e-02]
+iirFlat = IIR(a_vals_flat, b_vals_flat)
+a_vals_dba = [1.0, -2.12979364760736134, 0.42996125885751674, 1.62132698199721426, -0.96669962900852902, 0.00121015844426781, 0.04400300696788968]
+b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
+iirDba = IIR(a_vals_dba, b_vals_dba)
 
 
 def int_or_str(text):
@@ -53,7 +60,9 @@ def calcDb(amp):
 
 def calcDBAfromInput(input):
     # apply flattening
-    weightedInput = iir.applyIIR(input)
+    flattedInput = iirFlat.applyIIR(input)
+    # apply dba weighting
+    weightedInput = iirDba.applyIIR(flattedInput)
     # get rid of any dc shift
     balancedInput = weightedInput - np.mean(weightedInput)
     rms = np.sqrt(np.mean(balancedInput**2))
@@ -64,7 +73,8 @@ def calcDBAfromInput(input):
     # stable noise source and callibrated db meter are required
     # inserted vallue is the average rms at a certain noise level
     # this noise level is then added to end result to get db measurement
-    dba = calcDb(rms/0.041609445060915747) + 92 # DB correction factor. Mic specific
+    # dba = calcDb(rms/0.028116272750016935) + 93 # DB correction factor. Mic specific
+    dba = calcDb(rms/0.03247383584595221) + 92 # DB correction factor. Mic specific
     return dba
 
 
