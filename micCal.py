@@ -8,22 +8,66 @@ from scipy import signal
 import numpy as np
 import sounddevice as sd
 from arduinoSer import ArduinoSerDBA
-from iir import IIR
+from iir import IIRCombo
 
 duino = ArduinoSerDBA(9600,'/dev/ttyACM0')
 
-# these vallues where extracted from https://github.com/ikostoski/esp32-i2s-slm/blob/master/esp32-i2s-slm.ino#L158
-# working on calculations to create better values for IIR filter
-# infineon flat vals
-a_vals_flat = [1.0, -1.997675693595542, 0.997677044195563]
-b_vals_flat = [1.001240684967527, -1.996936108836337, 0.995703101823006]
-# vesper flat vals
-# a_vals_flat = [1.000000000000000, -0.767094031944789, 0.147079000369609]
-# b_vals_flat = [-2.596485872362707e-01, -1.485669912567066e-01, -2.124706303313597e-02]
-iirFlat = IIR(a_vals_flat, b_vals_flat)
 a_vals_dba = [1.0, -2.12979364760736134, 0.42996125885751674, 1.62132698199721426, -0.96669962900852902, 0.00121015844426781, 0.04400300696788968]
 b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
-iirDba = IIR(a_vals_dba, b_vals_dba)
+
+
+def CreateInfineonCombo():
+    global a_vals_dba
+    global b_vals_dba
+    # infineon flat vals
+    a_vals_flat = [1.0, -1.997675693595542, 0.997677044195563]
+    b_vals_flat = [1.001240684967527, -1.996936108836337, 0.995703101823006]
+    iirResult = IIRCombo()
+    iirResult.addIIR(a_vals_flat, b_vals_flat)
+    iirResult.addIIR(a_vals_dba, b_vals_dba)
+    return iirResult
+
+def CreateAdaI2SCombo():
+    global a_vals_dba
+    global b_vals_dba
+    # infineon flat vals
+    a_vals_flat = [1.0, -1.995669899865592, 0.995674587307386]
+    b_vals_flat = [0.998630484460097, -1.988147138656733, 0.989537448149796]
+    iirResult = IIRCombo()
+    iirResult.addIIR(a_vals_flat, b_vals_flat)
+    iirResult.addIIR(a_vals_dba, b_vals_dba)
+    return iirResult
+
+def CreateVesperCombo():
+    global a_vals_dba
+    global b_vals_dba
+    # infineon flat vals
+    a_vals_flat = [1.0, -1.989554495584846, 0.989581772725467]
+    b_vals_flat = [1.000576573984365, -1.981768145853667, 0.981285462311266]
+
+    a_vals_flat_h = [1.0, -6.118464950494380e-01, 9.345129520494294e-02]
+    b_vals_flat_h = [-2.603272472767943e-01, -1.950497547413094e-01, -3.649536858451514e-02]
+
+    iirResult = IIRCombo()
+    iirResult.addIIR(a_vals_flat, b_vals_flat)
+    iirResult.addIIR(a_vals_flat_h, b_vals_flat_h)
+    iirResult.addIIR(a_vals_dba, b_vals_dba)
+    return iirResult
+
+# # these vallues where extracted from https://github.com/ikostoski/esp32-i2s-slm/blob/master/esp32-i2s-slm.ino#L158
+# # working on calculations to create better values for IIR filter
+# # infineon flat vals
+# a_vals_flat = [1.0, -1.997675693595542, 0.997677044195563]
+# b_vals_flat = [1.001240684967527, -1.996936108836337, 0.995703101823006]
+# # vesper flat vals
+# # a_vals_flat = [1.000000000000000, -0.767094031944789, 0.147079000369609]
+# # b_vals_flat = [-2.596485872362707e-01, -1.485669912567066e-01, -2.124706303313597e-02]
+# iirFlat = IIR(a_vals_flat, b_vals_flat)
+# a_vals_dba = [1.0, -2.12979364760736134, 0.42996125885751674, 1.62132698199721426, -0.96669962900852902, 0.00121015844426781, 0.04400300696788968]
+# b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
+# iirDba = IIR(a_vals_dba, b_vals_dba)
+
+iirFilterCombo = CreateVesperCombo()
 
 
 def int_or_str(text):
@@ -59,10 +103,8 @@ def calcDb(amp):
 
 
 def calcDBAfromInput(input):
-    # apply flattening
-    flattedInput = iirFlat.applyIIR(input)
-    # apply dba weighting
-    weightedInput = iirDba.applyIIR(flattedInput)
+    # apply IIR filtering
+    weightedInput = iirFilterCombo.applyIIR(input)
     # get rid of any dc shift
     balancedInput = weightedInput - np.mean(weightedInput)
     rms = np.sqrt(np.mean(balancedInput**2))
@@ -73,9 +115,13 @@ def calcDBAfromInput(input):
     # stable noise source and callibrated db meter are required
     # inserted vallue is the average rms at a certain noise level
     # this noise level is then added to end result to get db measurement
-    # dba = calcDb(rms/0.041609445060915747) + 92 # DB correction factor. Mic specific
+    # dba = calcDb(rms/0.028116272750016935) + 93 # DB correction factor. Mic specific
+    # dba = calcDb(rms/0.004111315776383379) + 70 # DB correction factor. Mic specific
     return rms
 
+
+rmsList = [0] * 20
+duinoList = [0] * 20
 
 try:
     def callback(indata, frames, time, status):
@@ -86,8 +132,15 @@ try:
         if any(indata):
             flatData = indata.flatten() # input is 2d array. making 1d array from it
             dba = calcDBAfromInput(flatData)
+            rmsList.append(dba)
+            rmsList.pop(0)
+            rmsAv = sum(rmsList)/len(rmsList)
             duinoVal = duino.readSerDBA()
-            print(str(dba) + " " + str(duinoVal+2))
+            duinoList.append(duinoVal)
+            duinoList.pop(0)
+            duinoAv = sum(duinoList)/len(duinoList)
+            #if duinoVal > 10:
+            print(str(rmsAv) + " " + str(duinoAv))
 
 
             
