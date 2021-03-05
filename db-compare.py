@@ -83,7 +83,7 @@ def CreateAdaPDMCombo():
 # b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
 # iirDba = IIR(a_vals_dba, b_vals_dba)
 
-iirFilterCombo = CreateAdaPDMCombo()
+iirFilterCombo = CreateAdaI2SCombo()
 
 
 def int_or_str(text):
@@ -132,7 +132,7 @@ def calcDBAfromInput(input):
     # inserted vallue is the average rms at a certain noise level
     # this noise level is then added to end result to get db measurement
     # dba = calcDb(rms/0.028116272750016935) + 93 # DB correction factor. Mic specific
-    dba = calcDb(rms/0.0029323443808522533) + 74 # DB correction factor. Mic specific
+    dba = calcDb(rms/0.0056220121088954855) + 78 # DB correction factor. Mic specific
     return dba
 
 

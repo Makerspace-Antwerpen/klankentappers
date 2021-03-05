@@ -85,7 +85,7 @@ def CreateAdaPDMCombo():
 # b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
 # iirDba = IIR(a_vals_dba, b_vals_dba)
 
-iirFilterCombo = CreateAdaPDMCombo()
+iirFilterCombo = CreateAdaI2SCombo()
 
 
 def int_or_str(text):
