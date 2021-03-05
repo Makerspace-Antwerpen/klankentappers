@@ -54,6 +54,22 @@ def CreateVesperCombo():
     iirResult.addIIR(a_vals_dba, b_vals_dba)
     return iirResult
 
+def CreateAdaPDMCombo():
+    global a_vals_dba
+    global b_vals_dba
+    # infineon flat vals
+    a_vals_flat = [1.0, -1.997837005493052, 0.997838175129360]
+    b_vals_flat = [0.985396588196463, -1.963665742774994, 0.978282042869039]
+
+    a_vals_flat_h = [1.0, 6.331743873834744e-02, 6.525859922573027e-04]
+    b_vals_flat_h = [0.448130111023087, 0.497537693920992, 0.137624507847601]
+
+    iirResult = IIRCombo()
+    iirResult.addIIR(a_vals_flat, b_vals_flat)
+    iirResult.addIIR(a_vals_flat_h, b_vals_flat_h)
+    iirResult.addIIR(a_vals_dba, b_vals_dba)
+    return iirResult
+
 # # these vallues where extracted from https://github.com/ikostoski/esp32-i2s-slm/blob/master/esp32-i2s-slm.ino#L158
 # # working on calculations to create better values for IIR filter
 # # infineon flat vals
@@ -67,7 +83,7 @@ def CreateVesperCombo():
 # b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
 # iirDba = IIR(a_vals_dba, b_vals_dba)
 
-iirFilterCombo = CreateVesperCombo()
+iirFilterCombo = CreateAdaPDMCombo()
 
 
 def int_or_str(text):
@@ -116,7 +132,7 @@ def calcDBAfromInput(input):
     # inserted vallue is the average rms at a certain noise level
     # this noise level is then added to end result to get db measurement
     # dba = calcDb(rms/0.028116272750016935) + 93 # DB correction factor. Mic specific
-    dba = calcDb(rms/0.00409443762684819) + 73 # DB correction factor. Mic specific
+    dba = calcDb(rms/0.005893678812439812) + 73.5 # DB correction factor. Mic specific
     return dba
 
 
