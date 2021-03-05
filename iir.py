@@ -16,3 +16,17 @@ class IIR:
         outdata, self.zi = signal.lfilter(self.b_vals, self.a_vals, input, -1, self.zi)
         #outdata = signal.lfilter(self.b_vals, self.a_vals, input, -1)
         return outdata
+
+
+
+class IIRCombo:
+    def __init__(self):
+        self.filters = list()
+    def addIIR(self, a_vals, b_vals):
+        filter = IIR(a_vals,b_vals)
+        self.filters.append(filter)
+    def applyIIR(self, input):
+        output = input
+        for filter in self.filters:
+            output = filter.applyIIR(output)
+        return output
