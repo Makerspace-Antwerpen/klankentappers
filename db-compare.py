@@ -38,6 +38,22 @@ def CreateAdaI2SCombo():
     iirResult.addIIR(a_vals_dba, b_vals_dba)
     return iirResult
 
+def CreateVesperCombo():
+    global a_vals_dba
+    global b_vals_dba
+    # infineon flat vals
+    a_vals_flat = [1.0, -1.989554495584846, 0.989581772725467]
+    b_vals_flat = [1.000576573984365, -1.981768145853667, 0.981285462311266]
+
+    a_vals_flat_h = [1.0, -6.118464950494380e-01, 9.345129520494294e-02]
+    b_vals_flat_h = [-2.603272472767943e-01, -1.950497547413094e-01, -3.649536858451514e-02]
+
+    iirResult = IIRCombo()
+    iirResult.addIIR(a_vals_flat, b_vals_flat)
+    iirResult.addIIR(a_vals_flat_h, b_vals_flat_h)
+    iirResult.addIIR(a_vals_dba, b_vals_dba)
+    return iirResult
+
 # # these vallues where extracted from https://github.com/ikostoski/esp32-i2s-slm/blob/master/esp32-i2s-slm.ino#L158
 # # working on calculations to create better values for IIR filter
 # # infineon flat vals
@@ -51,7 +67,7 @@ def CreateAdaI2SCombo():
 # b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
 # iirDba = IIR(a_vals_dba, b_vals_dba)
 
-iirFilterCombo = CreateInfineonCombo()
+iirFilterCombo = CreateVesperCombo()
 
 
 def int_or_str(text):
@@ -100,7 +116,7 @@ def calcDBAfromInput(input):
     # inserted vallue is the average rms at a certain noise level
     # this noise level is then added to end result to get db measurement
     # dba = calcDb(rms/0.028116272750016935) + 93 # DB correction factor. Mic specific
-    dba = calcDb(rms/0.016002504663234052) + 86 # DB correction factor. Mic specific
+    dba = calcDb(rms/0.00409443762684819) + 73 # DB correction factor. Mic specific
     return dba
 
 
@@ -115,7 +131,7 @@ try:
             dba = calcDBAfromInput(flatData)
             duinoVal = duino.readSerDBA()
             if duinoVal > 30:
-                print(str(dba) + " " + str(duinoVal+2))
+                print(str(dba) + " " + str(duinoVal))
 
 
             

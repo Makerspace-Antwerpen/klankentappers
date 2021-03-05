@@ -23,5 +23,6 @@ class ArduinoSerDBA():
         except Exception as e:
             return 0
     
+        val = val / 2.01333
         return val
 
