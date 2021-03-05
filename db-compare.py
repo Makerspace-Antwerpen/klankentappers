@@ -132,7 +132,7 @@ def calcDBAfromInput(input):
     # inserted vallue is the average rms at a certain noise level
     # this noise level is then added to end result to get db measurement
     # dba = calcDb(rms/0.028116272750016935) + 93 # DB correction factor. Mic specific
-    dba = calcDb(rms/0.005893678812439812) + 73.5 # DB correction factor. Mic specific
+    dba = calcDb(rms/0.0029323443808522533) + 74 # DB correction factor. Mic specific
     return dba
 
 
