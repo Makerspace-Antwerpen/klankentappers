@@ -45,8 +45,8 @@ def CreateVesperCombo():
     a_vals_flat = [1.0, -1.989554495584846, 0.989581772725467]
     b_vals_flat = [1.000576573984365, -1.981768145853667, 0.981285462311266]
 
-    a_vals_flat_h = [1.0, -6.118464950494380e-01, 9.345129520494294e-02]
-    b_vals_flat_h = [-2.603272472767943e-01, -1.950497547413094e-01, -3.649536858451514e-02]
+    a_vals_flat_h = [1.0, -4.294918477771842e-01, 4.611094235875732e-02]
+    b_vals_flat_h = [-2.798094157962595e-01, -2.666742140153097e-01, -6.353734919454769e-02]
 
     iirResult = IIRCombo()
     iirResult.addIIR(a_vals_flat, b_vals_flat)
@@ -85,7 +85,7 @@ def CreateAdaPDMCombo():
 # b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
 # iirDba = IIR(a_vals_dba, b_vals_dba)
 
-iirFilterCombo = CreateAdaI2SCombo()
+iirFilterCombo = CreateVesperCombo()
 
 
 def int_or_str(text):
