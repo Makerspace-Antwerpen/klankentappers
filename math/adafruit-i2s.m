@@ -1,3 +1,10 @@
+% based on the work of Ivan Kostoski 
+% at https://github.com/ikostoski/esp32-i2s-slm/blob/master/math/im69d130.m
+% Converted for use with octave
+
+
+
+
 pkg load control
 pkg load signal
 clear;
