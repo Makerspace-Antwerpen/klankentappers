@@ -109,36 +109,14 @@ def dbCompareCallback(data):
 mic.addCallback(dbCompareCallback)
 
 try:
-    # def callback(indata, frames, time, status):
-    #     if status:
-    #         text = ' ' + str(status) + ' '
-    #         print('\x1b[34;40m', text.center(args.columns, '#'),
-    #               '\x1b[0m', sep='')
-    #     if any(indata):
-    #         flatData = indata.flatten() # input is 2d array. making 1d array from it
-    #         dba = calcDBAfromInput(flatData)
-    #         duinoVal = duino.readSerDBA()
-    #         if duinoVal > 30:
-    #             print(str(dba) + " " + str(duinoVal))
-
-
-            
-
-    # with sd.InputStream(device=args.device, channels=1, callback=callback,
-    #                     blocksize=6000,
-    #                     samplerate=48000):
-
     mic.setup()
     mic.start()
-
 
     while True:
         response = input()
         if response in ('', 'q', 'Q'):
             mic.stop()
             break
-
-
 
 
 except KeyboardInterrupt:
