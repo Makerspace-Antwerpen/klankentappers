@@ -10,8 +10,7 @@ import sounddevice as sd
 from arduinoSer import ArduinoSerDBA
 from iir import IIRCombo
 from mic import Mic
-
-mic = Mic(sd)
+from Ifilter import FilterInterface
 
 
 
@@ -21,7 +20,7 @@ a_vals_dba = [1.0, -2.12979364760736134, 0.42996125885751674, 1.6213269819972142
 b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
 
 
-def CreateInfineonCombo():
+def CreateInfineonMic():
     global a_vals_dba
     global b_vals_dba
     # infineon flat vals
@@ -30,9 +29,11 @@ def CreateInfineonCombo():
     iirResult = IIRCombo()
     iirResult.addIIR(a_vals_flat, b_vals_flat)
     iirResult.addIIR(a_vals_dba, b_vals_dba)
-    return iirResult
+    mic = Mic(sd)
+    mic.addFilter(iirResult)
+    return mic
 
-def CreateAdaI2SCombo():
+def CreateAdaI2SMic():
     global a_vals_dba
     global b_vals_dba
     # adaI2S flat vals
@@ -41,9 +42,11 @@ def CreateAdaI2SCombo():
     iirResult = IIRCombo()
     iirResult.addIIR(a_vals_flat, b_vals_flat)
     iirResult.addIIR(a_vals_dba, b_vals_dba)
-    return iirResult
+    mic = Mic(sd)
+    mic.addFilter(iirResult)
+    return mic
 
-def CreateVesperCombo():
+def CreateVesperMic():
     global a_vals_dba
     global b_vals_dba
     # vesper flat vals
@@ -57,9 +60,11 @@ def CreateVesperCombo():
     iirResult.addIIR(a_vals_flat, b_vals_flat)
     iirResult.addIIR(a_vals_flat_h, b_vals_flat_h)
     iirResult.addIIR(a_vals_dba, b_vals_dba)
-    return iirResult
+    mic = Mic(sd)
+    mic.addFilter(iirResult)
+    return mic
 
-def CreateAdaPDMCombo():
+def CreateAdaPDMMic():
     global a_vals_dba
     global b_vals_dba
     # adaPDM flat vals
@@ -73,10 +78,12 @@ def CreateAdaPDMCombo():
     iirResult.addIIR(a_vals_flat, b_vals_flat)
     iirResult.addIIR(a_vals_flat_h, b_vals_flat_h)
     iirResult.addIIR(a_vals_dba, b_vals_dba)
-    return iirResult
+    mic = Mic(sd)
+    mic.addFilter(iirResult)
+    return mic
 
 
-iirFilterCombo = CreateVesperCombo()
+mic = CreateVesperMic()
 
 
 
@@ -89,9 +96,9 @@ def calcDb(amp):
 
 def calcDBAfromInput(input):
     # apply IIR filtering
-    weightedInput = iirFilterCombo.applyIIR(input)
+    # weightedInput = iirFilterCombo.applyFilter(input)
     # get rid of any dc shift
-    balancedInput = weightedInput - np.mean(weightedInput)
+    balancedInput = input - np.mean(input)
     rms = np.sqrt(np.mean(balancedInput**2))
     # Callibration vallues are created with the micCal.py script
     # stable noise source and callibrated db meter are required

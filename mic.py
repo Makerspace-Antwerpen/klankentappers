@@ -1,11 +1,12 @@
 #!/bin/python3
 
-import sounddevice as sd
+from Ifilter import FilterInterface
 
 class Mic:
 
     def __init__(self, sd):
         self.callbackList = list()
+        self.filterList = list()
         self.sd = sd
         self.windowsPerSecond = 8
         self.audioSampleRate = 48000
@@ -14,20 +15,26 @@ class Mic:
     def addCallback(self, callBack):
         self.callbackList.append(callBack)
 
-    def setSamplesPerSecond(self, count):
+    def addFilter(self, filter: FilterInterface):
+        self.filterList.append(filter)
+
+    def setSamplesPerSecond(self, count: int):
         self.windowsPerSecond = count
 
-    def setAudioSampleRate(self, sampleRate):
+    def setAudioSampleRate(self, sampleRate: int):
         self.audioSampleRate = sampleRate
     
-    def sefAudioDevice(self, audioDevice):
+    def sefAudioDevice(self, audioDevice: int):
         self.audioDevice = audioDevice
 
     def callback(self, indata, frames, time, status):
         flatData = indata.flatten() # input is 2d array. making 1d array from it
+        filteredData = flatData.copy()
+        for filter in self.filterList:
+            filteredData = filter.applyFilter(filteredData)
 
         for cb in self.callbackList:
-            cb(flatData)
+            cb(filteredData.copy())
 
     def setup(self):
         blocksize = int(self.audioSampleRate / self.windowsPerSecond)
