@@ -6,12 +6,12 @@ import shutil
 from scipy import signal
 
 import numpy as np
-# import sounddevice as sd
+import sounddevice as sd
 from arduinoSer import ArduinoSerDBA
 from iir import IIRCombo
 from mic import Mic
 
-mic = Mic()
+mic = Mic(sd)
 
 
 

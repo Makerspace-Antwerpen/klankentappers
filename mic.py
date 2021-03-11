@@ -4,8 +4,9 @@ import sounddevice as sd
 
 class Mic:
 
-    def __init__(self):
+    def __init__(self, sd):
         self.callbackList = list()
+        self.sd = sd
         self.windowsPerSecond = 8
         self.audioSampleRate = 48000
         self.audioDevice = 1
@@ -31,7 +32,7 @@ class Mic:
     def setup(self):
         blocksize = int(self.audioSampleRate / self.windowsPerSecond)
 
-        self.inputStream = sd.InputStream(device=self.audioDevice, channels=1, callback=self.callback,
+        self.inputStream = self.sd.InputStream(device=self.audioDevice, channels=1, callback=self.callback,
                             blocksize=blocksize,
                             samplerate=self.audioSampleRate)
 
