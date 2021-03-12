@@ -45,7 +45,12 @@ arecord -D plughw:0 -c1 -d 1 -r 48000 -f S32_LE -t wav -V mono -v output.wav
 ```
 ## python scripts
 There is a collection of python scripts in the main folder of the repo:
-1. db-compare.py: compare readings from the raspberry pi with the readings from the arduino
-2. iir.py: class that implements an IIR filter
-3. arduinoSer.py: class that sets up communication with the arduino
-4. micCal.py: script that put's out the rms value of the mic together with the db vallue coming from the arduino. This can be used to get the calibration vallues for the db-compare script. 
+1. Ifilter.py Interface for filters so implementation can be swapped out.
+2. iir.py Implemented IIR filter and IIRCombo (that holds more IIRfilters)
+3. mic.py Implements mic functions. Can add filters to flatten and Callbacks to process data.
+4. dbaMeasure.py Contains class to go from flat micData to dba measurement.
+5. recordEvents.py Combination of the above classes to record a file when noise is above a certain level.
+6. arduinoSer.py Class to handle comms with the arduino to read out dBa class 2 meter.
+7. db-compare.py Compare's Class 2 meter measurement with measurement from mic. Redirect output to logfile for later use.
+8. micCal.py output rms vallues and measurement from dBa class 2 meter to callibrate mic.
+
