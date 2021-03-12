@@ -29,7 +29,7 @@ def micSetup():
     return mic
 
 mic = micSetup()
-
+# TODO move loose values to constants
 dbaMeasure = DBAMeasure(0.008324243692980756, 71.5)
 
 audioQueue = queue.Queue()
@@ -37,6 +37,7 @@ dbaQueue = queue.Queue()
 
 def audioRecordingCallback(indata):
     audioQueue.put(indata.copy())
+    # TODO move all loose values to constants
     if audioQueue.qsize() > ( 8 * 5 ): # only keep the last 5 seconds
         audioQueue.get()
 
@@ -52,11 +53,25 @@ mic.setup()
 mic.start()
 
 fileCounter = 0
+# TODO move loose values to constants
+# TODO extract movingAverage functionality into seperate class?
+dbaMovingAverageList = [40.0] * (8 * 1800) # moving average of 1/2 hour
+dbaMovingAverage = 40.0
+
+def upDateDBaMovingAverage():
+    global dbaMovingAverageList
+    global dbaMovingAverage
+    dba = dbaQueue.get()
+    dbaMovingAverageList.append(dba)
+    dbaMovingAverageList.pop(0)
+    dbaMovingAverage = sum(dbaMovingAverageList) / len(dbaMovingAverageList)
+    return dba
+
 
 while True:
-    dba = dbaQueue.get()
-    print(dba)
-    if dba > 60:
+    dba = upDateDBaMovingAverage()
+    print(str(dba) + "  " + str(dbaMovingAverage))
+    if dba > dbaMovingAverage + 10:
         print("event " + str(fileCounter) +" fired")
         lastTime = time.time()
         fileName = "test" + str(fileCounter) + ".wav"
@@ -66,7 +81,7 @@ while True:
             currentTime = lastTime
             while (currentTime - 5) < lastTime:
                 if dbaQueue.empty() == False:
-                    if dbaQueue.get() > 60:
+                    if upDateDBaMovingAverage() > dbaMovingAverage + 10:
                         lastTime = time.time()
                 file.write(audioQueue.get())
                 currentTime = time.time()
