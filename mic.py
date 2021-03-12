@@ -28,6 +28,8 @@ class Mic:
         self.audioDevice = audioDevice
 
     def callback(self, indata, frames, time, status):
+        if status:
+            print(status,sys.stderr)
         flatData = indata.flatten() # input is 2d array. making 1d array from it
         filteredData = flatData.copy()
         for filter in self.filterList:
