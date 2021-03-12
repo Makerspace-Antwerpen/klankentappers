@@ -1,6 +1,8 @@
 #!/bin/python3
 
 from Ifilter import FilterInterface
+import sys
+
 
 class Mic:
 
