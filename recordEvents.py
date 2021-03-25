@@ -2,12 +2,19 @@
 
 import queue
 import time
+import datetime
 import soundfile as sf
 import sounddevice as sd
 import numpy as np
 from iir import IIR
 from mic import Mic
 from dbaMeasure import DBAMeasure
+from movingAverage import MovingAverage
+
+MIC_REF_RMS = 0.008324243692980756
+MIC_REF_DBA = 71.5
+
+
 
 
 def micSetup():
@@ -29,8 +36,8 @@ def micSetup():
     return mic
 
 mic = micSetup()
-# TODO move loose values to constants
-dbaMeasure = DBAMeasure(0.008324243692980756, 71.5)
+dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
+dbaMA = MovingAverage(8 * 18000, 40)
 
 audioQueue = queue.Queue()
 dbaQueue = queue.Queue()
@@ -53,35 +60,28 @@ mic.setup()
 mic.start()
 
 fileCounter = 0
-# TODO move loose values to constants
-# TODO extract movingAverage functionality into seperate class?
-dbaMovingAverageList = [40.0] * (8 * 1800) # moving average of 1/2 hour
-dbaMovingAverage = 40.0
+
 
 def upDateDBaMovingAverage():
-    global dbaMovingAverageList
-    global dbaMovingAverage
     dba = dbaQueue.get()
-    dbaMovingAverageList.append(dba)
-    dbaMovingAverageList.pop(0)
-    dbaMovingAverage = sum(dbaMovingAverageList) / len(dbaMovingAverageList)
+    dbaMA.addValue(dba)
     return dba
 
 
 while True:
     dba = upDateDBaMovingAverage()
-    print(str(dba) + "  " + str(dbaMovingAverage))
-    if dba > dbaMovingAverage + 10:
+    #print(str(dba) + "  " + str(dbaMA.getMA()))
+    if dba > dbaMA.getMA() + 10:
         print("event " + str(fileCounter) +" fired")
         lastTime = time.time()
-        fileName = "test" + str(fileCounter) + ".wav"
+        fileName = datetime.datetime.now().replace(microsecond=0).isoformat() + ".wav"
         fileCounter += 1
         with sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV",
                 channels=1, subtype="PCM_24") as file:
             currentTime = lastTime
             while (currentTime - 5) < lastTime:
                 if dbaQueue.empty() == False:
-                    if upDateDBaMovingAverage() > dbaMovingAverage + 10:
+                    if upDateDBaMovingAverage() > dbaMA.getMA() + 10:
                         lastTime = time.time()
                 file.write(audioQueue.get())
                 currentTime = time.time()

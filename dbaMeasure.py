@@ -29,11 +29,15 @@ class DBAMeasure:
         return db
 
     def dbaFromInput(self, input):
+        rms = self.AWeightedRMS(input)
+        dba = self.calcDb(rms/self.rmsReference) + self.dbaReference # DB correction factor. Mic specific
+        # dba = self.calcDb(rms/0.008324243692980756) + 71.5
+        return dba
+
+    def AWeightedRMS(self, input):
         # apply IIR filtering
         weightedInput = self.dbaIIR.applyFilter(input)
         # get rid of any dc shift
         balancedInput = weightedInput - np.mean(weightedInput)
         rms = np.sqrt(np.mean(balancedInput**2))
-        dba = self.calcDb(rms/self.rmsReference) + self.dbaReference # DB correction factor. Mic specific
-        # dba = self.calcDb(rms/0.008324243692980756) + 71.5
-        return dba
+        return rms
