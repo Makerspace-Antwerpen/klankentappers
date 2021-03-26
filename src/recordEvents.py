@@ -6,8 +6,6 @@ import datetime
 import soundfile as sf
 import sounddevice as sd
 import numpy as np
-from lib.iir import IIR
-from lib.mic import Mic
 from lib.dbaMeasure import DBAMeasure
 from lib.movingAverage import MovingAverage
 from micSetup.adaI2S import micSetup

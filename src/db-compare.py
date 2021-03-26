@@ -7,10 +7,10 @@ from scipy import signal
 
 import numpy as np
 import sounddevice as sd
-from arduinoSer import ArduinoSerDBA
-from iir import IIRCombo
-from mic import Mic
-from Ifilter import FilterInterface
+from lib.arduinoSer import ArduinoSerDBA
+from lib.iir import IIRCombo
+from lib.mic import Mic
+from lib.Ifilter import FilterInterface
 
 
 
