@@ -20,10 +20,11 @@ starting from basic raspberry PI OS
 
 ```
 sudo apt update && apt upgrade
-sudo apt install python3-pip
+sudo apt install python3-pip libsndfile1 libportaudio2 libatlas-base-dev
 sudo pip3 install --upgrade adafruit-python-shell
 wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/i2smic.py
 sudo python3 i2smic.py
+pip3 install numpy soundfile sounddevice scipy
 ```
 
 
