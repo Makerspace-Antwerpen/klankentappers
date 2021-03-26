@@ -62,7 +62,7 @@ while True:
     if dba > dbaMA.getMA() + 10:
         print("event " + str(fileCounter) +" fired")
         lastTime = time.time()
-        fileName = "/mnt/harddisk" + datetime.datetime.now().replace(microsecond=0).isoformat() + ".wav"
+        fileName = "/mnt/harddisk/" + datetime.datetime.now().replace(microsecond=0).isoformat() + ".wav"
         fileCounter += 1
         with sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV",
                 channels=1, subtype="PCM_16") as file:
