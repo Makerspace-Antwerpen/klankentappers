@@ -6,7 +6,7 @@ import sys
 
 class Mic:
 
-    def __init__(self, sd):
+    def __init__(self, sd, configFile="none"):
         self.callbackList = list()
         self.filterList = list()
         self.sd = sd
