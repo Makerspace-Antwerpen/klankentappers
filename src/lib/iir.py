@@ -3,7 +3,7 @@
 import numpy as np
 from scipy import signal
 import math
-from Ifilter import FilterInterface
+from lib.Ifilter import FilterInterface
 
 
 

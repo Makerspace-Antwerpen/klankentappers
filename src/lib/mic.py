@@ -1,6 +1,6 @@
 #!/bin/python3
 
-from Ifilter import FilterInterface
+from lib.Ifilter import FilterInterface
 import sys
 
 

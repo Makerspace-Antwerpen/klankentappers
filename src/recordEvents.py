@@ -6,10 +6,10 @@ import datetime
 import soundfile as sf
 import sounddevice as sd
 import numpy as np
-from iir import IIR
-from mic import Mic
-from dbaMeasure import DBAMeasure
-from movingAverage import MovingAverage
+from lib.iir import IIR
+from lib.mic import Mic
+from lib.dbaMeasure import DBAMeasure
+from lib.movingAverage import MovingAverage
 
 MIC_REF_RMS = 0.008324243692980756
 MIC_REF_DBA = 71.5
@@ -77,7 +77,7 @@ while True:
         fileName = datetime.datetime.now().replace(microsecond=0).isoformat() + ".wav"
         fileCounter += 1
         with sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV",
-                channels=1, subtype="PCM_24") as file:
+                channels=1, subtype="PCM_16") as file:
             currentTime = lastTime
             while (currentTime - 5) < lastTime:
                 if dbaQueue.empty() == False:

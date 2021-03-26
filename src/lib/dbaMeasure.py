@@ -1,6 +1,6 @@
 #!/bin/python3
 
-from iir import IIR
+from lib.iir import IIR
 import numpy as np
 import math
 
