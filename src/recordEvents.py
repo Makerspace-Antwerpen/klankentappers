@@ -7,9 +7,11 @@ import soundfile as sf
 import sounddevice as sd
 import numpy as np
 import configparser
+import config as cf
 from lib.dbaMeasure import DBAMeasure
 from lib.movingAverage import MovingAverage
 from micSetup.adaI2S import micSetup
+from lib.tbConnection import TBConnection
 
 config = configparser.ConfigParser()
 config.read('klankConfig.ini')
@@ -26,6 +28,10 @@ MIC_REF_DBA = float(micConfig['dbRefLevel'])
 mic = micSetup()
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(8 * 18000, 55)
+dbaShortMA = MovingAverage(8 * 300, 55)
+dbaVeryShortMA = MovingAverage(8 * 5, 55)
+tb = TBConnection("tb.wouterpeetermans.com", 1883, cf.tb_secret)
+
 
 audioQueue = queue.Queue()
 dbaQueue = queue.Queue()
@@ -49,11 +55,24 @@ mic.start()
 
 fileCounter = 0
 
+lastTBtime = 0
 
 def upDateDBaMovingAverage():
+    global lastTBtime
     dba = dbaQueue.get()
     dbaMA.addValue(dba)
+    dbaShortMA.addValue(dba)
+    dbaVeryShortMA.addValue(dba)
+    if (lastTBtime + 5) < time.time():
+        updateTB()
+        lastTBtime = time.time()
     return dba
+
+def updateTB():
+    tb.addTelemetry("longDbaMA", dbaMA.getMA())
+    tb.addTelemetry("shortDbaMA", dbaShortMA.getMA())
+    tb.addTelemetry("veryShortDbaMA", dbaVeryShortMA.getMA())
+    tb.sendTelemetry()
 
 
 while True:
