@@ -17,19 +17,26 @@ config = configparser.ConfigParser()
 config.read('klankConfig.ini')
 micConfig = config['micConfig']
 
-
-
+#INIT all common vars
+# TODO: let all vars come from config file
 MIC_REF_RMS = float(micConfig['rmsRefLevel'])
 MIC_REF_DBA = float(micConfig['dbRefLevel'])
+
+TB_INTERVAL_TIME = 5
+START_DBA = 55
+MEASURERMENTS_PER_SEC = 8
+EVENT_PADDING_TIME = 1
+EVENT_TRESHOLD_DB = 10
+AI_SAMPLE_DIR = "/mnt/harddisk"
 
 
 
 
 mic = micSetup()
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
-dbaMA = MovingAverage(8 * 1800, 55)
-dbaShortMA = MovingAverage(8 * 300, 55)
-dbaVeryShortMA = MovingAverage(8 * 5, 55)
+dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800, START_DBA)
+dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300, START_DBA)
+dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5, START_DBA)
 tb = TBConnection("tb.wouterpeetermans.com", 1883, cf.tb_secret)
 
 
@@ -38,8 +45,7 @@ dbaQueue = queue.Queue()
 
 def audioRecordingCallback(indata):
     audioQueue.put(indata.copy())
-    # TODO move all loose values to constants
-    if audioQueue.qsize() > ( 8 * 1 ): # only keep the last 5 seconds
+    if audioQueue.qsize() > ( MEASURERMENTS_PER_SEC * EVENT_PADDING_TIME ):
         audioQueue.get()
 
 
@@ -55,17 +61,10 @@ mic.start()
 
 fileCounter = 0
 
-lastTBtime = 0
-
-def upDateDBaMovingAverage():
-    global lastTBtime
-    dba = dbaQueue.get()
+def upDateDBaMovingAverage(dba):
     dbaMA.addValue(dba)
     dbaShortMA.addValue(dba)
     dbaVeryShortMA.addValue(dba)
-    if (lastTBtime + 1) < time.time():
-        updateTB()
-        lastTBtime = time.time()
     return dba
 
 def updateTB():
@@ -79,23 +78,54 @@ def updateTB():
     tb.sendTelemetry()
 
 
+# while True:
+#     dba = upDateDBaMovingAverage()
+#     print(str(dba) + "  " + str(dbaMA.getMA()))
+#     if dba > dbaMA.getMA() + 10:
+#         print("event " + str(fileCounter) +" fired")
+#         lastTime = time.time()
+#         fileName = "/mnt/harddisk/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
+#         fileCounter += 1
+#         with sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV",
+#                 channels=1, subtype="PCM_16") as file:
+#             currentTime = lastTime
+#             while (currentTime - 1) < lastTime:
+#                 if dbaQueue.empty() == False:
+#                     if upDateDBaMovingAverage() > dbaMA.getMA() + 10:
+#                         lastTime = time.time()
+#                 file.write(audioQueue.get())
+#                 currentTime = time.time()
+
+lastTBTime = time.time() + 10 # add extra time so sensor get's time to calibrate
+dba = START_DBA
+lastSoundAboveTresholdTime = time.time()
+eventBusy = False
+audioFile = None
+metaFile = None
+
 while True:
-    dba = upDateDBaMovingAverage()
-    print(str(dba) + "  " + str(dbaMA.getMA()))
-    if dba > dbaMA.getMA() + 10:
-        print("event " + str(fileCounter) +" fired")
-        lastTime = time.time()
-        fileName = "/mnt/harddisk/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
-        fileCounter += 1
-        with sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV",
-                channels=1, subtype="PCM_16") as file:
-            currentTime = lastTime
-            while (currentTime - 1) < lastTime:
-                if dbaQueue.empty() == False:
-                    if upDateDBaMovingAverage() > dbaMA.getMA() + 10:
-                        lastTime = time.time()
-                file.write(audioQueue.get())
-                currentTime = time.time()
+    if dbaQueue.empty() == False:
+        dba = dbaQueue.get()
+        upDateDBaMovingAverage(dba)
+    
+    if (lastTBTime + TB_INTERVAL_TIME) < time.time():
+        updateTB()
+        lastTBTime = time.time()
+
+    if dba > (dbaMA.getLMA() + EVENT_TRESHOLD_DB):
+        eventBusy = True
+        lastSoundAboveTresholdTime = time.time()
+        fileName = AI_SAMPLE_DIR + "/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
+        audioFile = sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV", channels=1, subtype="PCM_16")
+
+    if (lastSoundAboveTresholdTime + EVENT_PADDING_TIME) < time.time() and eventBusy:
+        eventBusy = False
+        audioFile.close()
+        audioFile = None
+    
+    if eventBusy:
+        audioFile.write(audioQueue.get())
+
     
 
 

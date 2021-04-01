@@ -16,7 +16,6 @@ class TBConnection:
         self.telemetry[name] = value
 
     def sendTelemetry(self):
-        print(self.telemetry)
         sendJson = json.dumps(self.telemetry)
         self.client.publish("v1/devices/me/telemetry", sendJson)
         self.telemetry.clear()
