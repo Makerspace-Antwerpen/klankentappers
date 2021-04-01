@@ -27,7 +27,7 @@ MIC_REF_DBA = float(micConfig['dbRefLevel'])
 
 mic = micSetup()
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
-dbaMA = MovingAverage(8 * 18000, 55)
+dbaMA = MovingAverage(8 * 1800, 55)
 dbaShortMA = MovingAverage(8 * 300, 55)
 dbaVeryShortMA = MovingAverage(8 * 5, 55)
 tb = TBConnection("tb.wouterpeetermans.com", 1883, cf.tb_secret)
@@ -63,7 +63,7 @@ def upDateDBaMovingAverage():
     dbaMA.addValue(dba)
     dbaShortMA.addValue(dba)
     dbaVeryShortMA.addValue(dba)
-    if (lastTBtime + 5) < time.time():
+    if (lastTBtime + 1) < time.time():
         updateTB()
         lastTBtime = time.time()
     return dba
@@ -72,6 +72,10 @@ def updateTB():
     tb.addTelemetry("longDbaMA", dbaMA.getMA())
     tb.addTelemetry("shortDbaMA", dbaShortMA.getMA())
     tb.addTelemetry("veryShortDbaMA", dbaVeryShortMA.getMA())
+    tb.addTelemetry("longDbaLMA", dbaMA.getLMA())
+    tb.addTelemetry("shortDbaLMA", dbaShortMA.getLMA())
+    tb.addTelemetry("veryShortDbaLMA", dbaVeryShortMA.getLMA())
+    tb.addTelemetry("veryShortDbaMAX", dbaVeryShortMA.getMAX())
     tb.sendTelemetry()
 
 
@@ -81,7 +85,7 @@ while True:
     if dba > dbaMA.getMA() + 10:
         print("event " + str(fileCounter) +" fired")
         lastTime = time.time()
-        fileName = "/mnt/harddisk/" + datetime.datetime.now().replace(microsecond=0).isoformat() + ".wav"
+        fileName = "/mnt/harddisk/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
         fileCounter += 1
         with sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV",
                 channels=1, subtype="PCM_16") as file:
