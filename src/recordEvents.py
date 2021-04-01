@@ -31,7 +31,7 @@ AI_SAMPLE_DIR = "/mnt/harddisk"
 
 
 
-
+# INIT all objects used to manage data
 mic = micSetup()
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800, START_DBA)
@@ -42,6 +42,8 @@ tb = TBConnection("tb.wouterpeetermans.com", 1883, cf.tb_secret)
 
 audioQueue = queue.Queue()
 dbaQueue = queue.Queue()
+
+# callbacks for use by mic
 
 def audioRecordingCallback(indata):
     audioQueue.put(indata.copy())
@@ -59,7 +61,6 @@ mic.addCallback(dbaMeasurementCallback)
 mic.setup()
 mic.start()
 
-fileCounter = 0
 
 def upDateDBaMovingAverage(dba):
     dbaMA.addValue(dba)
@@ -78,23 +79,6 @@ def updateTB():
     tb.sendTelemetry()
 
 
-# while True:
-#     dba = upDateDBaMovingAverage()
-#     print(str(dba) + "  " + str(dbaMA.getMA()))
-#     if dba > dbaMA.getMA() + 10:
-#         print("event " + str(fileCounter) +" fired")
-#         lastTime = time.time()
-#         fileName = "/mnt/harddisk/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
-#         fileCounter += 1
-#         with sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV",
-#                 channels=1, subtype="PCM_16") as file:
-#             currentTime = lastTime
-#             while (currentTime - 1) < lastTime:
-#                 if dbaQueue.empty() == False:
-#                     if upDateDBaMovingAverage() > dbaMA.getMA() + 10:
-#                         lastTime = time.time()
-#                 file.write(audioQueue.get())
-#                 currentTime = time.time()
 
 lastTBTime = time.time() + 10 # add extra time so sensor get's time to calibrate
 dba = START_DBA
