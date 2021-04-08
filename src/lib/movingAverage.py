@@ -1,8 +1,9 @@
 #!/bin/python3
 
 import math
+import rx
 
-class MovingAverage:
+class MovingAverage(rx.core.typing.Observer):
     def __init__(self, size, initValue):
         self.movingAverageList = [initValue] * size
 
@@ -22,3 +23,12 @@ class MovingAverage:
 
     def getMAX(self):
         return max(self.movingAverageList)
+    
+    def on_next(self,val):
+        self.addValue(val[0])
+    
+    def on_error(self,error):
+        print(error)
+
+    def on_completed(self):
+        print("movingaverage is done.")
