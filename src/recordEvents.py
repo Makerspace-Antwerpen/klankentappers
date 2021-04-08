@@ -40,8 +40,9 @@ dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5, START_DBA)
 tb = TBConnection("tb.wouterpeetermans.com", 1883, cf.tb_secret)
 
 
-audioQueue = queue.Queue()
-dbaQueue = queue.Queue()
+audioQueue = queue.Queue() #holds audio for set time to drop in audio recording
+dbaQueue = queue.Queue() #dba measurement fastlane
+dbaHistoryQueue = queue.Queue() #holds dba measurements for set time to drop in meta file
 
 # callbacks for use by mic
 
@@ -54,6 +55,9 @@ def audioRecordingCallback(indata):
 def dbaMeasurementCallback(indata):
     dba = dbaMeasure.dbaFromInput(indata.copy())
     dbaQueue.put(dba)
+    dbaHistoryQueue.put(dba)
+    if dbaHistoryQueue.qsize() > ( MEASURERMENTS_PER_SEC * EVENT_PADDING_TIME ):
+        dbaHistoryQueue.get()
 
 
 mic.addCallback(audioRecordingCallback)
@@ -86,6 +90,7 @@ lastSoundAboveTresholdTime = time.time()
 eventBusy = False
 audioFile = None
 metaFile = None
+eventDbaList = list()
 
 while True:
     if dbaQueue.empty() == False:
@@ -97,18 +102,24 @@ while True:
         lastTBTime = time.time()
 
     if dba > (dbaMA.getLMA() + EVENT_TRESHOLD_DB):
-        eventBusy = True
         lastSoundAboveTresholdTime = time.time()
-        fileName = AI_SAMPLE_DIR + "/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
-        audioFile = sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV", channels=1, subtype="PCM_16")
+        if not eventBusy:
+            fileName = AI_SAMPLE_DIR + "/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
+            audioFile = sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV", channels=1, subtype="PCM_16")
+            metaFile = open(AI_SAMPLE_DIR + "/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".meta", "wt")
+            eventBusy = True
 
     if (lastSoundAboveTresholdTime + EVENT_PADDING_TIME) < time.time() and eventBusy:
         eventBusy = False
         audioFile.close()
         audioFile = None
+        metaFile.close()
+        metaFile = None
+
     
     if eventBusy:
         audioFile.write(audioQueue.get())
+        metaFile.write(str(dbaHistoryQueue.get()) + "\n")
 
     
 
