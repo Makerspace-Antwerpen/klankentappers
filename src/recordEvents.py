@@ -17,21 +17,25 @@ from lib.tbConnection import TBConnection
 from lib.eventRecorder import EventRecorder
 from lib.fileWriter import FileWriter
 
+# parse configfile
 config = configparser.ConfigParser()
 config.read('klankConfig.ini')
 micConfig = config['micConfig']
+tbConfig = config['thingsBoardConfig']
+eventConfig = config['eventConfig']
+
 
 #INIT all common vars
 # TODO: let all vars come from config file
 MIC_REF_RMS = float(micConfig['rmsRefLevel'])
 MIC_REF_DBA = float(micConfig['dbRefLevel'])
 
-TB_INTERVAL_TIME = 1
+TB_INTERVAL_TIME = int(tbConfig['intervalTime'])
 MEASURERMENTS_PER_SEC = 8
-EVENT_PADDING_TIME = 5
-EVENT_START_THRESHOLD_DB = 10
-EVENT_END_THRESHOLD = 0
-AI_SAMPLE_DIR = "/mnt/harddisk"
+EVENT_PADDING_TIME = int(eventConfig['padding'])
+EVENT_START_THRESHOLD_DB = int(eventConfig['startDB'])
+EVENT_END_THRESHOLD = int(eventConfig['endDB'])
+AI_SAMPLE_DIR = eventConfig['sampleDir']
 
 
 
