@@ -9,7 +9,6 @@ import soundfile as sf
 import sounddevice as sd
 import numpy as np
 import configparser
-import config as cf
 from lib.dbaMeasure import DBAMeasure
 from lib.movingAverage import MovingAverage
 from micSetup.adaI2S import micSetup
@@ -45,7 +44,7 @@ dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800)
 dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300)
 dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5)
-tb = TBConnection(TB_INTERVAL_TIME, "tb.wouterpeetermans.com", 1883, cf.tb_secret)
+tb = TBConnection(TB_INTERVAL_TIME, "tb.wouterpeetermans.com", 1883, tbConfig['secret'])
 
 # set up dataSubject and schedulers
 defaultScheduler = rx.scheduler.EventLoopScheduler()

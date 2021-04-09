@@ -45,13 +45,5 @@ arecord -D plughw:0 -c1 -d 1 -r 48000 -f S32_LE -t wav -V mono -v output.wav
 # -v verbose --> meer info voor debug
 ```
 ## python scripts
-There is a collection of python scripts in the main folder of the repo:
-1. Ifilter.py Interface for filters so implementation can be swapped out.
-2. iir.py Implemented IIR filter and IIRCombo (that holds more IIRfilters)
-3. mic.py Implements mic functions. Can add filters to flatten and Callbacks to process data.
-4. dbaMeasure.py Contains class to go from flat micData to dba measurement.
-5. recordEvents.py Combination of the above classes to record a file when noise is above a certain level.
-6. arduinoSer.py Class to handle comms with the arduino to read out dBa class 2 meter.
-7. db-compare.py Compare's Class 2 meter measurement with measurement from mic. Redirect output to logfile for later use.
-8. micCal.py output rms vallues and measurement from dBa class 2 meter to callibrate mic.
+In the src/ folder there are several scripts. The recordEvents.py records events that happen around the sensor. Event sensitivity can be set with the config file. The mic section of the config file can be generated with thes setup.py script. The thingsboard secret also needs to be provided in the config file. an example config file is provided. You'll need to create your own klankConfig.ini
 
