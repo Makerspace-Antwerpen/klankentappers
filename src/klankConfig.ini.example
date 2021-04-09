@@ -1,0 +1,21 @@
+# microphone callibration. use setup script to generate
+[micConfig]
+audiodevice = 1
+dbreflevel = 74
+rmsreflevel = 0.002999428535149791
+
+# thingsboard config
+[thingsBoardConfig]
+intervalTime = 1
+secret = YourSecretGoesHere
+
+# event triggering config
+[eventConfig]
+startDB = 10
+endDB = 0
+padding = 5
+sampleDir = /mnt/harddisk/samples
+
+
+
+
