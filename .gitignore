@@ -1,4 +1,4 @@
 *.wav
 __pycache__
 src/config.py
-src/klankConfig.py
+src/klankConfig.ini
