@@ -101,7 +101,7 @@ tb.startTelemetry()
 
 
 while True:
-    time.sleep(20)
+    time.sleep(1)
     continue
 
 
