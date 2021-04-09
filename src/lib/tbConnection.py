@@ -32,13 +32,9 @@ class TBConnection:
         
     
     def sendThread(self):
-        lastTime = time.time()
         while True:
-            time.sleep(1)
-            if self.end:
-                break
-            if lastTime + self.interval < time.time():
-                self.sendTelemetry()
+            time.sleep(self.interval)
+            self.sendTelemetry()
     
     def startTelemetry(self):
         self.thread.start()

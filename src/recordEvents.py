@@ -26,10 +26,9 @@ micConfig = config['micConfig']
 MIC_REF_RMS = float(micConfig['rmsRefLevel'])
 MIC_REF_DBA = float(micConfig['dbRefLevel'])
 
-TB_INTERVAL_TIME = 5
-START_DBA = 55
+TB_INTERVAL_TIME = 1
 MEASURERMENTS_PER_SEC = 8
-EVENT_PADDING_TIME = 1
+EVENT_PADDING_TIME = 10
 EVENT_START_THRESHOLD_DB = 10
 EVENT_END_THRESHOLD = 0
 AI_SAMPLE_DIR = "/mnt/harddisk"
@@ -39,9 +38,9 @@ AI_SAMPLE_DIR = "/mnt/harddisk"
 # INIT all objects used to manage data
 mic = micSetup()
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
-dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800, START_DBA)
-dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300, START_DBA)
-dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5, START_DBA)
+dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800)
+dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300)
+dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5)
 tb = TBConnection(TB_INTERVAL_TIME, "tb.wouterpeetermans.com", 1883, cf.tb_secret)
 
 # set up dataSubject and schedulers

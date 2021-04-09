@@ -4,12 +4,14 @@ import math
 import rx
 
 class MovingAverage(rx.core.typing.Observer):
-    def __init__(self, size, initValue):
-        self.movingAverageList = [initValue] * size
+    def __init__(self, size):
+        self.movingAverageList = list()
+        self.size = size
 
     def addValue(self, value):
         self.movingAverageList.append(value)
-        self.movingAverageList.pop(0)
+        if self.size <= len(self.movingAverageList):
+            self.movingAverageList.pop(0)
 
     def getMA(self):
         return sum(self.movingAverageList) / len(self.movingAverageList)
