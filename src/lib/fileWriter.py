@@ -4,11 +4,11 @@ import rx
 import soundfile as sf
 
 class FileWriter(rx.core.typing.Observer):
-    def __init__(self, outputDir, date, samplerate, audioDataSubject):
+    def __init__(self, outputDir, date, samplerate, audioDataSubject, recordingScheduler):
         fileName = outputDir + "/" + date.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
         self.audioFile = sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV", channels=1, subtype="PCM_16")
         self.metaFile = open(outputDir + "/" + date.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".meta", "wt")
-        self.subscription = audioDataSubject.subscribe(self)
+        self.subscription = audioDataSubject.subscribe(self, scheduler=recordingScheduler)
         self.end = None
         print(fileName)
 

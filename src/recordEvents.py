@@ -42,11 +42,13 @@ dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800, START_DBA)
 dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300, START_DBA)
 dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5, START_DBA)
-tb = TBConnection("tb.wouterpeetermans.com", 1883, cf.tb_secret)
+tb = TBConnection(TB_INTERVAL_TIME, "tb.wouterpeetermans.com", 1883, cf.tb_secret)
 
-# set up dataSubject
-scheduler = rx.scheduler.EventLoopScheduler()
-audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME , scheduler=scheduler)
+# set up dataSubject and schedulers
+defaultScheduler = rx.scheduler.EventLoopScheduler()
+detectionScheduler = rx.scheduler.EventLoopScheduler()
+recordingScheduler = rx.scheduler.EventLoopScheduler()
+audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME , scheduler=defaultScheduler)
 
 
 
@@ -63,7 +65,7 @@ mic.setup()
 mic.start()
 
 
-def updateTB():
+def updateTB(Any):
     tb.addTelemetry("longDbaMA", dbaMA.getMA())
     tb.addTelemetry("shortDbaMA", dbaShortMA.getMA())
     tb.addTelemetry("veryShortDbaMA", dbaVeryShortMA.getMA())
@@ -71,10 +73,9 @@ def updateTB():
     tb.addTelemetry("shortDbaLMA", dbaShortMA.getLMA())
     tb.addTelemetry("veryShortDbaLMA", dbaVeryShortMA.getLMA())
     tb.addTelemetry("veryShortDbaMAX", dbaVeryShortMA.getMAX())
-    tb.sendTelemetry()
 
 def createFileWriter():
-    return FileWriter(AI_SAMPLE_DIR, datetime, 4800, audioDataSubject)
+    return FileWriter(AI_SAMPLE_DIR, datetime, 4800, audioDataSubject, recordingScheduler)
 
 def eventDetector(val, eventBusy):
     if val[0] > dbaMA.getLMA() + EVENT_START_THRESHOLD_DB:
@@ -90,10 +91,17 @@ eventRecorder = EventRecorder(eventDetector,EVENT_PADDING_TIME , createFileWrite
 audioDataSubject.subscribe(dbaMA)
 audioDataSubject.subscribe(dbaVeryShortMA)
 audioDataSubject.subscribe(dbaShortMA)
-audioDataSubject.subscribe(eventRecorder)
+audioDataSubject.subscribe(eventRecorder, scheduler=detectionScheduler)
+audioDataSubject.subscribe(
+    on_next=updateTB
+)
+
+tb.startTelemetry()
+
 
 
 while True:
+    time.sleep(20)
     continue
 
 
