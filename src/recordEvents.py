@@ -30,7 +30,8 @@ TB_INTERVAL_TIME = 5
 START_DBA = 55
 MEASURERMENTS_PER_SEC = 8
 EVENT_PADDING_TIME = 1
-EVENT_TRESHOLD_DB = 10
+EVENT_START_THRESHOLD_DB = 10
+EVENT_END_THRESHOLD = 0
 AI_SAMPLE_DIR = "/mnt/harddisk"
 
 
@@ -43,48 +44,24 @@ dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300, START_DBA)
 dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5, START_DBA)
 tb = TBConnection("tb.wouterpeetermans.com", 1883, cf.tb_secret)
 
-# TODO fix Queue hacking
-# audioQueue = queue.Queue() #holds audio for set time to drop in audio recording
-# dbaQueue = queue.Queue() #dba measurement fastlane
-# dbaHistoryQueue = queue.Queue() #holds dba measurements for set time to drop in meta file
-
+# set up dataSubject
 scheduler = rx.scheduler.EventLoopScheduler()
-
 audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME , scheduler=scheduler)
 
 
 
 
 # callbacks for use by mic
-
-def audioRecordingCallback(indata):
-    # audioQueue.put(indata.copy())
-    # if audioQueue.qsize() > ( MEASURERMENTS_PER_SEC * EVENT_PADDING_TIME ):
-    #     audioQueue.get()
-    return
-
-
-def dbaMeasurementCallback(indata):
+def dataCallback(indata):
     dba = dbaMeasure.dbaFromInput(indata.copy())
-    # dbaQueue.put(dba)
-    # dbaHistoryQueue.put(dba)
-    # if dbaHistoryQueue.qsize() > ( MEASURERMENTS_PER_SEC * EVENT_PADDING_TIME ):
-    #     dbaHistoryQueue.get()
     audioDataSubject.on_next(tuple((dba, indata.copy(), time.time())))
     
 
 
-mic.addCallback(audioRecordingCallback)
-mic.addCallback(dbaMeasurementCallback)
+mic.addCallback(dataCallback)
 mic.setup()
 mic.start()
 
-
-def upDateDBaMovingAverage(dba):
-    dbaMA.addValue(dba)
-    dbaShortMA.addValue(dba)
-    dbaVeryShortMA.addValue(dba)
-    return dba
 
 def updateTB():
     tb.addTelemetry("longDbaMA", dbaMA.getMA())
@@ -99,8 +76,10 @@ def updateTB():
 def createFileWriter():
     return FileWriter(AI_SAMPLE_DIR, datetime, 4800, audioDataSubject)
 
-def eventDetector(val):
-    if val[0] > dbaMA.getLMA() + EVENT_TRESHOLD_DB:
+def eventDetector(val, eventBusy):
+    if val[0] > dbaMA.getLMA() + EVENT_START_THRESHOLD_DB:
+        return True
+    elif eventBusy and val[0] > dbaMA.getLMA() + EVENT_END_THRESHOLD:
         return True
     else:
         return False
@@ -113,44 +92,6 @@ audioDataSubject.subscribe(dbaVeryShortMA)
 audioDataSubject.subscribe(dbaShortMA)
 audioDataSubject.subscribe(eventRecorder)
 
-
-
-# lastTBTime = time.time() + 10 # add extra time so sensor get's time to calibrate
-# dba = START_DBA
-# lastSoundAboveTresholdTime = time.time()
-# eventBusy = False
-# audioFile = None
-# metaFile = None
-# eventDbaList = list()
-
-# while True:
-#     if dbaQueue.empty() == False:
-#         dba = dbaQueue.get()
-#         upDateDBaMovingAverage(dba)
-    
-#     if (lastTBTime + TB_INTERVAL_TIME) < time.time():
-#         updateTB()
-#         lastTBTime = time.time()
-
-#     if dba > (dbaMA.getLMA() + EVENT_TRESHOLD_DB):
-#         lastSoundAboveTresholdTime = time.time()
-#         if not eventBusy:
-#             fileName = AI_SAMPLE_DIR + "/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".wav"
-#             audioFile = sf.SoundFile(fileName, mode='w', samplerate=48000, format="WAV", channels=1, subtype="PCM_16")
-#             metaFile = open(AI_SAMPLE_DIR + "/" + datetime.datetime.now().astimezone().replace(microsecond=0).isoformat() + ".meta", "wt")
-#             eventBusy = True
-
-#     if (lastSoundAboveTresholdTime + EVENT_PADDING_TIME) < time.time() and eventBusy:
-#         eventBusy = False
-#         audioFile.close()
-#         audioFile = None
-#         metaFile.close()
-#         metaFile = None
-
-    
-#     if eventBusy:
-#         audioFile.write(audioQueue.get())
-#         metaFile.write(str(dbaHistoryQueue.get()) + "\n")
 
 while True:
     continue

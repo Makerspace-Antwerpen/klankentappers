@@ -17,7 +17,7 @@ class EventRecorder(rx.core.typing.Observer):
     
     def on_next(self, val: tuple):
         self.lock.acquire()
-        eventTrigger = self.eventDetector(val)
+        eventTrigger = self.eventDetector(val, self.eventBusy)
 
         if eventTrigger:
             self.lastTrigger = time.time()
