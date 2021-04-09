@@ -26,10 +26,10 @@ class EventRecorder(rx.core.typing.Observer):
             self.eventBusy = True
             self.fileWriter = self.createFileWriter()
 
-        if self.eventBusy and (self.lastTrigger + self.cooldownTime) < time.time():
+        if self.eventBusy and not eventTrigger:
             self.eventBusy = False
             print("dispose")
-            self.fileWriter.setEnd(val[2])
+            self.fileWriter.setEnd(val[2] + self.cooldownTime)
             self.fileWriter = None
         self.lock.release() 
 
