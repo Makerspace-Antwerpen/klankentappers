@@ -20,5 +20,5 @@ print("Als geluidsbron gebruik je best white noise (te vinden online) afgespeeld
 micConfig['dbRefLevel'] = input("Geef het geluidsniveau in dat je afleest op de reeds gecalibreerde geluidsmeter:\n")
 print("Nu gaan we 20 seconden calibreren")
 micConfig['rmsRefLevel'] = str(micCal())
-with open('klankConfig.ini', 'w') as configfile:
+with open('micConfig.ini', 'w') as configfile:
     config.write(configfile)
