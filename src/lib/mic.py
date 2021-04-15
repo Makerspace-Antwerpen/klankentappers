@@ -26,7 +26,7 @@ class Mic:
     def setAudioSampleRate(self, sampleRate: int):
         self.audioSampleRate = sampleRate
     
-    def sefAudioDevice(self, audioDevice: int):
+    def setAudioDevice(self, audioDevice: int):
         self.audioDevice = audioDevice
 
     def callback(self, indata, frames, time, status):

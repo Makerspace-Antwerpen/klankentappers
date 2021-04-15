@@ -1,7 +1,6 @@
 #!/bin/python3
 
 import sounddevice as sd
-from micSetup.micCal import micCal
 import configparser
 
 config = configparser.ConfigParser()
@@ -19,6 +18,7 @@ print("Zet een continue geluidsbron op 1m van je klankpi en leg een reeds gecali
 print("Als geluidsbron gebruik je best white noise (te vinden online) afgespeeld op een telefoon of speakers")
 micConfig['dbRefLevel'] = input("Geef het geluidsniveau in dat je afleest op de reeds gecalibreerde geluidsmeter:\n")
 print("Nu gaan we 20 seconden calibreren")
-micConfig['rmsRefLevel'] = str(micCal())
+from micSetup.micCal import micCal
+micConfig['rmsRefLevel'] = str(micCal(int(micConfig['audioDevice'])))
 with open('micConfig.ini', 'w') as configfile:
     config.write(configfile)

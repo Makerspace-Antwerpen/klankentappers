@@ -11,7 +11,7 @@ from micSetup.adaI2S import micSetup
 
 mic = micSetup()
 
-rmsMA = MovingAverage(160,0)
+rmsMA = MovingAverage(160)
 
 dbaMeasure = DBAMeasure(0,0)
 
@@ -24,9 +24,6 @@ def dbaMeasurementCallback(indata):
 
 
 mic.addCallback(dbaMeasurementCallback)
-mic.setup()
-mic.start()
-
 fileCounter = 0
 
 
@@ -36,7 +33,12 @@ def upDateRMSMovingAverage():
     return rms
 
 
-def micCal():
+def micCal(device):
+    mic.setAudioDevice(device)
+    mic.setup()
+    mic.start()
+
+
     startTime = time.time()
     rms = 0
     while True:

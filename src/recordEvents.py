@@ -40,6 +40,7 @@ AI_SAMPLE_DIR = eventConfig['sampleDir']
 
 # INIT all objects used to manage data
 mic = micSetup()
+mic.setAudioDevice(int(micConfig['audioDevice']))
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800)
 dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300)
