@@ -25,7 +25,6 @@ eventConfig = config['eventConfig']
 
 
 #INIT all common vars
-# TODO: let all vars come from config file
 MIC_REF_RMS = float(micConfig['rmsRefLevel'])
 MIC_REF_DBA = float(micConfig['dbRefLevel'])
 
