@@ -43,7 +43,7 @@ class Mic:
     def setup(self):
         blocksize = int(self.audioSampleRate / self.windowsPerSecond)
 
-        self.inputStream = self.sd.InputStream(device=self.audioDevice, channels=1, callback=self.callback,
+        self.inputStream = self.sd.InputStream(device=self.audioDevice, channels=1, dtype='float32', callback=self.callback,
                             blocksize=blocksize,
                             samplerate=self.audioSampleRate)
 

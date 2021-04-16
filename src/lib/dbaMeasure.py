@@ -41,3 +41,9 @@ class DBAMeasure:
         balancedInput = weightedInput - np.mean(weightedInput)
         rms = np.sqrt(np.mean(balancedInput**2))
         return rms
+
+    def getNormalizationFactor(self):
+        ex = (120 - self.dbaReference) / 20
+        rmsdb = 10**ex * self.rmsReference
+        print(rmsdb)
+        return 1 / rmsdb

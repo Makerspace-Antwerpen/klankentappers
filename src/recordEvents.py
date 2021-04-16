@@ -11,7 +11,7 @@ import numpy as np
 import configparser
 from lib.dbaMeasure import DBAMeasure
 from lib.movingAverage import MovingAverage
-from micSetup.adaI2S import micSetup
+from micSetup.infineon import micSetup
 from lib.tbConnection import TBConnection
 from lib.eventRecorder import EventRecorder
 from lib.fileWriter import FileWriter
@@ -77,7 +77,7 @@ def updateTB(Any):
     tb.addTelemetry("veryShortDbaMAX", dbaVeryShortMA.getMAX())
 
 def createFileWriter():
-    return FileWriter(AI_SAMPLE_DIR, datetime, 4800, audioDataSubject, recordingScheduler)
+    return FileWriter(AI_SAMPLE_DIR, datetime, 4800, dbaMeasure.getNormalizationFactor(), audioDataSubject, recordingScheduler)
 
 def eventDetector(val, eventBusy):
     if val[0] > dbaMA.getLMA() + EVENT_START_THRESHOLD_DB:

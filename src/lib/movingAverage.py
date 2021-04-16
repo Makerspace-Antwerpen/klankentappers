@@ -7,16 +7,24 @@ class MovingAverage(rx.core.typing.Observer):
     def __init__(self, size):
         self.movingAverageList = list()
         self.size = size
+        self.initCounter = 0
 
     def addValue(self, value):
+        if self.initCounter < 10:
+            self.initCounter += 1
+            return
         self.movingAverageList.append(value)
         if self.size <= len(self.movingAverageList):
             self.movingAverageList.pop(0)
 
     def getMA(self):
+        if len(self.movingAverageList) == 0:
+            return 0
         return sum(self.movingAverageList) / len(self.movingAverageList)
 
     def getLMA(self):
+        if len(self.movingAverageList) == 0:
+            return 0
         div = 20
         deLogSum = 0
         for val in self.movingAverageList:
@@ -24,6 +32,8 @@ class MovingAverage(rx.core.typing.Observer):
         return div * math.log(deLogSum/len(self.movingAverageList), 10)
 
     def getMAX(self):
+        if len(self.movingAverageList) == 0:
+            return 0
         return max(self.movingAverageList)
     
     def on_next(self,val):
