@@ -43,7 +43,8 @@ class DBAMeasure:
         return rms
 
     def getNormalizationFactor(self):
-        ex = (120 - self.dbaReference) / 20
-        rmsdb = 10**ex * self.rmsReference
-        print(rmsdb)
+        ex = (80 - self.dbaReference) / 20
+        print(ex)
+        rmsdb = (10**ex) * self.rmsReference
+        print(1 / rmsdb)
         return 1 / rmsdb
