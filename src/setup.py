@@ -22,3 +22,4 @@ from micSetup.micCal import micCal
 micConfig['rmsRefLevel'] = str(micCal(int(micConfig['audioDevice'])))
 with open('micConfig.ini', 'w') as configfile:
     config.write(configfile)
+print("config done")
