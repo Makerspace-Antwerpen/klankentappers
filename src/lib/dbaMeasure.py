@@ -35,6 +35,7 @@ class DBAMeasure:
         return dba
 
     def AWeightedRMS(self, input):
+        # TODO check correctnes of math
         # apply IIR filtering
         weightedInput = self.dbaIIR.applyFilter(input)
         # get rid of any dc shift
