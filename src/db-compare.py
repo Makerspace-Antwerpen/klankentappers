@@ -15,6 +15,7 @@ from lib.tbConnection import TBConnection
 from lib.eventRecorder import EventRecorder
 from lib.fileWriter import FileWriter
 from lib.arduinoSer import ArduinoSerDBA
+from lib.tertsMeasure import TertsMeasure
 
 
 duino = ArduinoSerDBA(9600,'/dev/ttyACM0')
@@ -40,14 +41,16 @@ MEASURERMENTS_PER_SEC = 8
 mic = micSetup()
 mic.setAudioDevice(INPUT_DEV)
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
+tertsMeasure = TertsMeasure(48000, MIC_REF_RMS, MIC_REF_DBA)
 
 
 
 def dbCompareCallback(data):
     dba = dbaMeasure.dbaFromInput(data.copy())
+    terts = tertsMeasure.calcTertsBands(data)
     duinoVal = duino.readSerDBA()
     if duinoVal > 30:
-        print(str(dba) + " " + str(duinoVal))
+        print(str(dba) + " " + str(duinoVal) + " " + str(terts))
 
 mic.addCallback(dbCompareCallback)
 

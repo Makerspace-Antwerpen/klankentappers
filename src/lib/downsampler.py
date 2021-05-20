@@ -4,6 +4,10 @@
 # Based on the work from Bert De Coensel, 2009
 # Modified for use in this program by Wouter Peetermans, 2021
 
+import numpy
+
+import scipy
+
 class Downsampler:
   """ class for downsampling signals with an integer factor, using an 8th order Chebyshev type I filter """
   def __init__(self, factor = 2):

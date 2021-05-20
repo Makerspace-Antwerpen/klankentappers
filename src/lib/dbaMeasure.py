@@ -5,6 +5,7 @@ import numpy as np
 import math
 
 class DBAMeasure:
+    # TODO make sample frequency adjustable
     # Callibration vallues are created with the micCal.py script
     # stable noise source and callibrated db meter are required
     # inserted vallue is the average rms at a certain noise level
