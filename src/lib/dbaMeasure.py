@@ -3,7 +3,6 @@
 from lib.iir import IIR
 import numpy as np
 import math
-from lib.filters import FilterFactory
 
 class DBAMeasure:
     # Callibration vallues are created with the micCal.py script
@@ -13,7 +12,6 @@ class DBAMeasure:
     def __init__(self, rmsReference: float, dbaReference: float):
         self.rmsReference = rmsReference
         self.dbaReference = dbaReference
-        self.exponentialMovingAverageFilter = FilterFactory.ExponentialAverage(48000)
         self.dbaIIRSetup()
 
     def dbaIIRSetup(self):
@@ -25,15 +23,9 @@ class DBAMeasure:
         self.dbaIIR = dbaIIR
 
     def calcDb(self, amp):
-        if amp <= 0:
+        if amp == 0:
             return 0
         db = 20 * math.log(amp,10)
-        return db
-
-    def dbFromExponentialAverage(self,amp):
-        if amp <= 0:
-            return 0
-        db = 10 * math.log(amp,10)
         return db
 
     def dbaFromInput(self, input):
@@ -45,24 +37,11 @@ class DBAMeasure:
     def AWeightedRMS(self, input):
         # TODO check correctnes of math
         # apply IIR filtering
-        weightedInput = self.applyWeighting(input)
+        weightedInput = self.dbaIIR.applyFilter(input)
         # get rid of any dc shift
         balancedInput = weightedInput - np.mean(weightedInput)
         rms = np.sqrt(np.mean(balancedInput**2))
         return rms
-
-    def applyWeighting(self, input):
-        weightedInput = self.dbaIIR.applyFilter(input)
-        return weightedInput
-
-    def ExponentialAverageDBA(self,input):
-        weightedInput = self.applyWeighting(input)
-        EMA = self.exponentialMovingAverageFilter.applyFilter(weightedInput)
-        output = list()
-        for i in EMA:
-            db = self.dbFromExponentialAverage( ( i**2 )/( self.rmsReference**2 )) + self.dbaReference
-            output.append(db)
-        return output
 
     def getNormalizationFactor(self):
         ex = (120 - self.dbaReference) / 20
