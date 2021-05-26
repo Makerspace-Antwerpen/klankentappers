@@ -7,5 +7,5 @@ WORKDIR /usr/src/app
 
 RUN pip install sounddevice configparser numpy rx scipy
 
-CMD ["python3", "/usr/src/app/test.py"]
-
+# CMD ["python3", "/usr/src/app/test.py"]
+CMD [ "balena-idle" ]
