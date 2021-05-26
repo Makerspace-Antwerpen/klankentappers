@@ -1,117 +1,56 @@
 #!/bin/python3
 
-import argparse
-import math
-import shutil
-from scipy import signal
-
-import numpy as np
+import rx
+from rx import operators as ops
+import time
+import datetime
+import soundfile as sf
 import sounddevice as sd
+import numpy as np
+import configparser
+from lib.dbaMeasure import DBAMeasure
+from lib.movingAverage import MovingAverage
+from micSetup.infineon import micSetup
+from lib.tbConnection import TBConnection
+from lib.eventRecorder import EventRecorder
+from lib.fileWriter import FileWriter
 from lib.arduinoSer import ArduinoSerDBA
-from lib.iir import IIRCombo
-from lib.mic import Mic
-from lib.Ifilter import FilterInterface
-
+from lib.tertsMeasure import TertsMeasure
 
 
 duino = ArduinoSerDBA(9600,'/dev/ttyACM0')
 
-a_vals_dba = [1.0, -2.12979364760736134, 0.42996125885751674, 1.62132698199721426, -0.96669962900852902, 0.00121015844426781, 0.04400300696788968]
-b_vals_dba = [0.169994948147430, 0.280415310498794, -1.120574766348363, 0.131562559965936, 0.974153561246036, -0.282740857326553, -0.152810756202003]
 
 
-def CreateInfineonMic():
-    global a_vals_dba
-    global b_vals_dba
-    # infineon flat vals
-    a_vals_flat = [1.0, -1.997675693595542, 0.997677044195563]
-    b_vals_flat = [1.001240684967527, -1.996936108836337, 0.995703101823006]
-    iirResult = IIRCombo()
-    iirResult.addIIR(a_vals_flat, b_vals_flat)
-    iirResult.addIIR(a_vals_dba, b_vals_dba)
-    mic = Mic(sd)
-    mic.addFilter(iirResult)
-    return mic
-
-def CreateAdaI2SMic():
-    global a_vals_dba
-    global b_vals_dba
-    # adaI2S flat vals
-    a_vals_flat = [1.0, -1.995669899865592, 0.995674587307386]
-    b_vals_flat = [0.998630484460097, -1.988147138656733, 0.989537448149796]
-    iirResult = IIRCombo()
-    iirResult.addIIR(a_vals_flat, b_vals_flat)
-    iirResult.addIIR(a_vals_dba, b_vals_dba)
-    mic = Mic(sd)
-    mic.addFilter(iirResult)
-    return mic
-
-def CreateVesperMic():
-    global a_vals_dba
-    global b_vals_dba
-    # vesper flat vals
-    a_vals_flat = [1.0, -1.989554495584846, 0.989581772725467]
-    b_vals_flat = [1.000576573984365, -1.981768145853667, 0.981285462311266]
-
-    a_vals_flat_h = [1.0, -4.294918477771842e-01, 4.611094235875732e-02]
-    b_vals_flat_h = [-2.798094157962595e-01, -2.666742140153097e-01, -6.353734919454769e-02]
-
-    iirResult = IIRCombo()
-    iirResult.addIIR(a_vals_flat, b_vals_flat)
-    iirResult.addIIR(a_vals_flat_h, b_vals_flat_h)
-    iirResult.addIIR(a_vals_dba, b_vals_dba)
-    mic = Mic(sd)
-    mic.addFilter(iirResult)
-    return mic
-
-def CreateAdaPDMMic():
-    global a_vals_dba
-    global b_vals_dba
-    # adaPDM flat vals
-    a_vals_flat = [1.0, -1.997837005493052, 0.997838175129360]
-    b_vals_flat = [0.985396588196463, -1.963665742774994, 0.978282042869039]
-
-    a_vals_flat_h = [1.0, 6.331743873834744e-02, 6.525859922573027e-04]
-    b_vals_flat_h = [0.448130111023087, 0.497537693920992, 0.137624507847601]
-
-    iirResult = IIRCombo()
-    iirResult.addIIR(a_vals_flat, b_vals_flat)
-    iirResult.addIIR(a_vals_flat_h, b_vals_flat_h)
-    iirResult.addIIR(a_vals_dba, b_vals_dba)
-    mic = Mic(sd)
-    mic.addFilter(iirResult)
-    return mic
+# parse configfile
+config = configparser.ConfigParser()
+config.read('klankConfig.ini')
+micConfig = config['micConfig']
+tbConfig = config['thingsBoardConfig']
+eventConfig = config['eventConfig']
 
 
-mic = CreateVesperMic()
+#INIT all common vars
+MIC_REF_RMS = float(micConfig['rmsRefLevel'])
+MIC_REF_DBA = float(micConfig['dbRefLevel'])
+INPUT_DEV = int(micConfig['audioDevice'])
+MEASURERMENTS_PER_SEC = 8
 
 
+# INIT all data management objects
+mic = micSetup()
+mic.setAudioDevice(INPUT_DEV)
+dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
+tertsMeasure = TertsMeasure(48000, MIC_REF_RMS, MIC_REF_DBA)
 
-def calcDb(amp):
-    if amp == 0:
-        return 0
-    db = 20 * math.log(amp,10)
-    return db
 
-
-def calcDBAfromInput(input):
-    # apply IIR filtering
-    # weightedInput = iirFilterCombo.applyFilter(input)
-    # get rid of any dc shift
-    balancedInput = input - np.mean(input)
-    rms = np.sqrt(np.mean(balancedInput**2))
-    # Callibration vallues are created with the micCal.py script
-    # stable noise source and callibrated db meter are required
-    # inserted vallue is the average rms at a certain noise level
-    # this noise level is then added to end result to get db measurement
-    dba = calcDb(rms/0.008324243692980756) + 71.5 # DB correction factor. Mic specific
-    return dba
 
 def dbCompareCallback(data):
-    dba = calcDBAfromInput(data)
+    dba = dbaMeasure.dbaFromInput(data.copy())
+    terts = tertsMeasure.calcTertsBands(data)
     duinoVal = duino.readSerDBA()
     if duinoVal > 30:
-        print(str(dba) + " " + str(duinoVal))
+        print(str(dba) + " " + str(duinoVal) + " " + str(terts))
 
 mic.addCallback(dbCompareCallback)
 

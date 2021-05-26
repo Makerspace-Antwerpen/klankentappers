@@ -5,6 +5,7 @@ import numpy as np
 import math
 
 class DBAMeasure:
+    # TODO make sample frequency adjustable
     # Callibration vallues are created with the micCal.py script
     # stable noise source and callibrated db meter are required
     # inserted vallue is the average rms at a certain noise level
@@ -35,6 +36,7 @@ class DBAMeasure:
         return dba
 
     def AWeightedRMS(self, input):
+        # TODO check correctnes of math
         # apply IIR filtering
         weightedInput = self.dbaIIR.applyFilter(input)
         # get rid of any dc shift
