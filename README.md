@@ -29,6 +29,7 @@ pip3 install numpy soundfile sounddevice scipy
 
 
 You can test wether the mic is working with:
+
 ```bash
 # to list mic's available
 arecord -l
