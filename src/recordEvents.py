@@ -93,7 +93,7 @@ eventRecorder = EventRecorder(eventDetector,EVENT_PADDING_TIME , createFileWrite
 audioDataSubject.subscribe(dbaMA)
 audioDataSubject.subscribe(dbaVeryShortMA)
 audioDataSubject.subscribe(dbaShortMA)
-audioDataSubject.subscribe(eventRecorder, scheduler=detectionScheduler)
+#audioDataSubject.subscribe(eventRecorder, scheduler=detectionScheduler)
 audioDataSubject.subscribe(
     on_next=updateTB
 )
