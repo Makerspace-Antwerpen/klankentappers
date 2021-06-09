@@ -1,12 +1,23 @@
 FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python:3.9.1
 
-RUN install_packages curl wget build-essential libelf-dev awscli bc flex libssl-dev python bison alsa-utils libportaudio2
+RUN install_packages curl wget build-essential libelf-dev awscli bc flex libssl-dev python bison alsa-utils libportaudio2 libsndfile1
 
 #TODO pip modules still need to be adapted for full use of the repo
-RUN pip install sounddevice configparser numpy rx scipy
+RUN pip install sounddevice configparser numpy rx scipy paho-mqtt soundfile
 
 COPY ./src /usr/src/app
 WORKDIR /usr/src/app
 
-# CMD ["python3", "/usr/src/app/setup.py"]
+# add gcc 10 for building kernel module
+RUN echo 'deb http://deb.debian.org/debian testing main' >> /etc/apt/sources.list && install_packages gcc-9 libc6-dev
+
+
+# build the kernel module for the i2s mic
+ENV VERSION '2.75.0+rev1.prod'
+ENV UDEV=on
+RUN BALENA_MACHINE_NAME=%%BALENA_MACHINE_NAME%% ./build.sh build --device %%BALENA_MACHINE_NAME%% --os-version "$VERSION" --src i2s_mic_module
+
+
+
+#CMD ["python3", "/usr/src/app/recordEvents.py"]
 CMD [ "balena-idle" ]

@@ -1,0 +1,8 @@
+version: '2'
+services:
+  meter:
+    build: .
+    restart: always
+    devices:
+      - "/dev/snd:/dev/snd"
+    privileged: true
