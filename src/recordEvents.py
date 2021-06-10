@@ -1,6 +1,7 @@
 #!/bin/python3
 
 import queue
+import os
 import rx
 from rx import operators as ops
 import time
@@ -44,7 +45,7 @@ dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800)
 dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300)
 dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5)
-tb = TBConnection(TB_INTERVAL_TIME, "tb.wouterpeetermans.com", 1883, tbConfig['secret'])
+tb = TBConnection(TB_INTERVAL_TIME, os.environ['TB_SERVER'], 1883, os.environ['TB_SECRET'])
 
 # set up dataSubject and schedulers
 defaultScheduler = rx.scheduler.EventLoopScheduler()

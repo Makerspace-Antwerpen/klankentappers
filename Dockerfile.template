@@ -19,5 +19,5 @@ RUN BALENA_MACHINE_NAME=%%BALENA_MACHINE_NAME%% ./build.sh build --device %%BALE
 
 
 
-#CMD ["python3", "/usr/src/app/recordEvents.py"]
-CMD [ "balena-idle" ]
+CMD ["bash", "/usr/src/app/wrapper.sh"]
+#CMD [ "balena-idle" ]
