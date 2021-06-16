@@ -1,0 +1,3 @@
+[submodule "wifi-connect"]
+	path = wifi-connect
+	url = git@github.com:balena-os/wifi-connect.git
