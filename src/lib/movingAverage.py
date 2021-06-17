@@ -25,7 +25,7 @@ class MovingAverage(rx.core.typing.Observer):
     def getLMA(self):
         if len(self.movingAverageList) == 0:
             return 0
-        div = 20
+        div = 10
         deLogSum = 0
         for val in self.movingAverageList:
             deLogSum += math.pow(10, val/div)
