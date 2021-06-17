@@ -18,16 +18,19 @@ class TBConnection:
         self.thread = threading.Thread(target=self.sendThread)
         self.end = False
 
-    def addTelemetry(self, name, value):
+    def addTelemetry(self, name, value, telSet="default"):
         self.lock.acquire()
-        self.telemetry[name] = value
+        if (self.telemetry[telSet] == None):
+            self.telemetry[telSet] = dict()
+        self.telemetry[telSet][name] = value
         self.lock.release()
 
-    def sendTelemetry(self):
+    def sendTelemetry(self, telSet="default"):
         self.lock.acquire()
-        sendJson = json.dumps(self.telemetry)
+        sendJson = json.dumps(self.telemetry[telSet])
         self.lock.release()
         self.client.publish("v1/devices/me/telemetry", sendJson)
+
         
         
     
