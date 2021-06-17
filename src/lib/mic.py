@@ -45,7 +45,8 @@ class Mic:
 
         self.inputStream = self.sd.InputStream(device=self.audioDevice, channels=1, dtype='float32', callback=self.callback,
                             blocksize=blocksize,
-                            samplerate=self.audioSampleRate)
+                            samplerate=self.audioSampleRate,
+                            latency=5)
 
     def start(self):
         self.inputStream.start()
