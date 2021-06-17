@@ -18,37 +18,51 @@ from lib.eventRecorder import EventRecorder
 from lib.fileWriter import FileWriter
 
 # parse configfile
-config = configparser.ConfigParser()
-config.read('klankConfig.ini')
-micConfig = config['micConfig']
-tbConfig = config['thingsBoardConfig']
-eventConfig = config['eventConfig']
+# config = configparser.ConfigParser()
+# config.read('klankConfig.ini')
+# micConfig = config['micConfig']
+# tbConfig = config['thingsBoardConfig']
+# eventConfig = config['eventConfig']
+
+# Load in ENV vars
+MIC_REF_RMS = float(os.environ['MIC_REF_RMS'])
+MIC_REF_DBA = float(os.environ['MIC_REF_DBA'])
+MIC_AUDIODEVICE = int(os.environ['MIC_AUDIODEVICE'])
+
+TB_INTERVAL_TIME = int(os.environ['TB_INTERVAL_TIME'])
+TB_SERVER = os.environ['TB_SERVER']
+TB_SECRET = os.environ['TB_SECRET']
+MEASURERMENTS_PER_SEC = 8
+EVENT_PADDING_TIME = int(os.environ['EVENT_PADDING_TIME'])
+EVENT_START_THRESHOLD_DB = int(os.environ['EVENT_START_THRESHOLD_DB'])
+EVENT_END_THRESHOLD = int(os.environ['EVENT_END_THRESHOLD'])
+AI_SAMPLE_DIR = os.environ['AI_SAMPLE_DIR']
 
 
 #INIT all common vars
-MIC_REF_RMS = float(micConfig['rmsRefLevel'])
-MIC_REF_DBA = float(micConfig['dbRefLevel'])
+# MIC_REF_RMS = float(micConfig['rmsRefLevel'])
+# MIC_REF_DBA = float(micConfig['dbRefLevel'])
 
-TB_INTERVAL_TIME = int(tbConfig['intervalTime'])
-MEASURERMENTS_PER_SEC = 8
-EVENT_PADDING_TIME = int(eventConfig['padding'])
-EVENT_START_THRESHOLD_DB = int(eventConfig['startDB'])
-EVENT_END_THRESHOLD = int(eventConfig['endDB'])
-AI_SAMPLE_DIR = eventConfig['sampleDir']
+# TB_INTERVAL_TIME = int(tbConfig['intervalTime'])
+# MEASURERMENTS_PER_SEC = 8
+# EVENT_PADDING_TIME = int(eventConfig['padding'])
+# EVENT_START_THRESHOLD_DB = int(eventConfig['startDB'])
+# EVENT_END_THRESHOLD = int(eventConfig['endDB'])
+# AI_SAMPLE_DIR = eventConfig['sampleDir']
 
 
 
 # INIT all objects used to manage data
 mic = micSetup()
-mic.setAudioDevice(int(micConfig['audioDevice'])) # TODO move config parsing up
+mic.setAudioDevice(MIC_AUDIODEVICE)
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800)
 dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300)
 dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5)
-tb = TBConnection(TB_INTERVAL_TIME, os.environ['TB_SERVER'], 1883, os.environ['TB_SECRET'])
+tb = TBConnection(TB_INTERVAL_TIME, TB_SERVER, 1883, TB_SECRET)
 
 # set up dataSubject and schedulers
-defaultScheduler = rx.scheduler.EventLoopScheduler()
+defaultScheduler = rx.scheduler.ThreadPoolScheduler(max_workers = 1)
 detectionScheduler = rx.scheduler.EventLoopScheduler()
 recordingScheduler = rx.scheduler.EventLoopScheduler()
 audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME , scheduler=defaultScheduler)
