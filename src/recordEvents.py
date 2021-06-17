@@ -62,9 +62,9 @@ dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5)
 tb = TBConnection(TB_INTERVAL_TIME, TB_SERVER, 1883, TB_SECRET)
 
 # set up dataSubject and schedulers
-defaultScheduler = rx.scheduler.ThreadPoolScheduler(max_workers = 1)
-detectionScheduler = rx.scheduler.EventLoopScheduler()
-recordingScheduler = rx.scheduler.EventLoopScheduler()
+defaultScheduler = rx.scheduler.ThreadPoolScheduler(max_workers = 2)
+detectionScheduler = defaultScheduler
+recordingScheduler = defaultScheduler
 audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME , scheduler=defaultScheduler)
 
 
@@ -108,7 +108,7 @@ eventRecorder = EventRecorder(eventDetector,EVENT_PADDING_TIME , createFileWrite
 audioDataSubject.subscribe(dbaMA)
 audioDataSubject.subscribe(dbaVeryShortMA)
 audioDataSubject.subscribe(dbaShortMA)
-#audioDataSubject.subscribe(eventRecorder, scheduler=detectionScheduler)
+# audioDataSubject.subscribe(eventRecorder, scheduler=detectionScheduler)
 audioDataSubject.subscribe(
     on_next=updateTB
 )
