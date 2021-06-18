@@ -20,7 +20,7 @@ class TBConnection:
 
     def addTelemetry(self, name, value, telSet="default"):
         self.lock.acquire()
-        if (self.telemetry[telSet] == None):
+        if not telSet in self.telemetry.keys():
             self.telemetry[telSet] = dict()
         self.telemetry[telSet][name] = value
         self.lock.release()
