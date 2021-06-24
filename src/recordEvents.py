@@ -16,6 +16,7 @@ from micSetup.infineon import micSetup
 from lib.tbConnection import TBConnection
 from lib.eventRecorder import EventRecorder
 from lib.fileWriter import FileWriter
+from lib.statsGen import StatsGen
 
 # parse configfile
 # config = configparser.ConfigParser()
@@ -60,13 +61,14 @@ dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800)
 dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300)
 dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5)
 tb = TBConnection(TB_INTERVAL_TIME, TB_SERVER, 1883, TB_SECRET)
+statsGen = StatsGen(tb)
 
 # set up dataSubject and schedulers
-defaultScheduler = rx.scheduler.ThreadPoolScheduler(max_workers = 2)
+# defaultScheduler = rx.scheduler.ThreadPoolScheduler(max_workers = 2)
+defaultScheduler = rx.scheduler.EventLoopScheduler()
 detectionScheduler = defaultScheduler
 recordingScheduler = defaultScheduler
 audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME , scheduler=defaultScheduler)
-
 
 
 
@@ -103,7 +105,7 @@ def eventDetector(val, eventBusy):
         return False
 
 eventRecorder = EventRecorder(eventDetector,EVENT_PADDING_TIME , createFileWriter)
-
+time.sleep(EVENT_PADDING_TIME + 1)
 # TODO get MA's somewhere in stream instead of sideefects
 audioDataSubject.subscribe(dbaMA)
 audioDataSubject.subscribe(dbaVeryShortMA)
@@ -112,7 +114,10 @@ audioDataSubject.subscribe(dbaShortMA)
 audioDataSubject.subscribe(
     on_next=updateTB
 )
+audioDataSubject.subscribe(statsGen)
 
+
+time.sleep(10) # start telemetry if system is running stable
 tb.startTelemetry()
 
 

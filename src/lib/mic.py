@@ -36,7 +36,6 @@ class Mic:
         filteredData = flatData.copy()
         for filter in self.filterList:
             filteredData = filter.applyFilter(filteredData)
-
         for cb in self.callbackList:
             cb(filteredData.copy())
 
