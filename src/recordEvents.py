@@ -64,8 +64,8 @@ tb = TBConnection(TB_INTERVAL_TIME, TB_SERVER, 1883, TB_SECRET)
 statsGen = StatsGen(tb)
 
 # set up dataSubject and schedulers
-# defaultScheduler = rx.scheduler.ThreadPoolScheduler(max_workers = 2)
-defaultScheduler = rx.scheduler.EventLoopScheduler()
+defaultScheduler = rx.scheduler.ThreadPoolScheduler(max_workers = 2)
+# defaultScheduler = rx.scheduler.EventLoopScheduler()
 detectionScheduler = defaultScheduler
 recordingScheduler = defaultScheduler
 audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME , scheduler=defaultScheduler)
