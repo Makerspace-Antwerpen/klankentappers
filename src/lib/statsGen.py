@@ -23,7 +23,7 @@ class StatsGen(rx.core.typing.Observer):
         self.dayTimeData.clear()
         self.tbConnection.addTelemetry("LDay", LDay, "stats")
         self.tbConnection.addTelemetry("LNight", LNight, "stats")
-        self.tbConnection.addTelemetry("LDayNight", LDayNight)
+        self.tbConnection.addTelemetry("LDayNight", LDayNight, "stats")
         self.tbConnection.sendTelemetry("stats")
 
 
