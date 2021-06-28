@@ -1,9 +1,20 @@
 # DBA measurement on raspberry pi with an i2s mic
 
-## structure of the repo
-Previous test results go in the logs directory. Testcode goes in the scratchpad directory
+## Balena
+This repo is structured to work with balena cloud. You can run the recordEvents.py script without balena but you'll need to provide the neccesary environment variables manualy in the shell where you run it.
+### Environment
+The project needs following ENV variables to run correctly:
+- AI_SAMPLE_DIR --> This is the folder where audio samples are stored.
+- EVENT_START_THRESHOLD_DB --> This is the amount the sound level can rise above the nominal before a event is stored in the ai sample directory.
+- EVENT_END_THRESHOLD --> This is the amount above the nominal sound level at which an event is ended.
+- EVENT_PADDING_TIME --> This is the amount of time that is added on the end en beginning of each audio sample.
+- MIC_AUDIODEVICE --> This is the audiodevice to do the recording with. 1 for the i2s mic.
+- MIC_REF_DBA --> This is the sound level in dBa for which a reference RMS level is given.
+- MIC_REF_RMS --> This is the RMS level of the mic at the given dBa sound level. This value can be aquired with the setup.py script in the src directory
+- TB_INTERVAL_TIME --> This is the interval between thingsboard updates.
+- TB_SERVER --> This is the thingsboard server to connect with.
+- TB_SECRET --> This is the access token to use for connecting to the thingsboard server.
 
-In the main directory there is several python scripts which are explained further down this document. There's also a .gnuplot file to generate graphs from the collected data.
 
 
 ## Basic PI setup
@@ -44,6 +55,12 @@ arecord -D plughw:0 -c1 -d 1 -r 48000 -f S32_LE -t wav -V mono -v output.wav
 # -V mono --> VU-meter mono
 # -v verbose --> meer info voor debug
 ```
+Don't forget to set the environment variables before running the scripts. the db-compare.py and setup.py scripts are made to run on a regular py and only need/generate a config file. The recordEvents.py script is made to run on a balena pi and needs the environment variables to be setup.
+
+### Balena pi
+This service exists of 2 containers managed by a docker compose. The wifi connect container is the default of balena. The meter container runs the actual sound meter.
+Wifi container is a submodule so it might be needed to download it seperatly.
+
 ## python scripts
-In the src/ folder there are several scripts. The recordEvents.py records events that happen around the sensor. Event sensitivity can be set with the config file. The mic section of the config file can be generated with thes setup.py script. The thingsboard secret also needs to be provided in the config file. an example config file is provided. You'll need to create your own klankConfig.ini
+In the src/ folder there are several scripts. The recordEvents.py records events that happen around the sensor. Event sensitivity can be set with the env vars. The mic section of the env vars can be generated with thes setup.py script. 
 
