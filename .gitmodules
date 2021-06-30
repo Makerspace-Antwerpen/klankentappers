@@ -1,3 +1,6 @@
 [submodule "wifi-connect"]
 	path = wifi-connect
 	url = git@github.com:balena-os/wifi-connect.git
+[submodule "hardware/infineon-69D120-adau7002-breakout-pcb"]
+	path = hardware/infineon-69D120-adau7002-breakout-pcb
+	url = https://github.com/Makerspace-Antwerpen/infineon-69D120-adau7002-breakout-pcb
