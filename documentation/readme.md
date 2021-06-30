@@ -28,4 +28,4 @@ Custom design
 
 1. [Bereid de SD kaart voor met een Balena image](software.md)
 2. [Bouw de hardware](hardware.md)
-3. [Test werking](test.md)
+3. [Stel je wifi thuis in](wifi.md)
