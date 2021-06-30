@@ -1,5 +1,7 @@
 # Bouw zelf je klankentapper
 
+![device](/documentation/imgs/hardware_windkap.png)
+
 ## Benodigdheden
 
 Off the shelf
