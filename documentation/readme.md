@@ -29,6 +29,6 @@ Custom design
 
 ## Bouwen
 
-1. [Bereid de SD kaart voor met een Balena image](software.md)
+1. [Bereid de SD kaart voor met een Balena image, of met de Python scripts in deze repository](software.md)
 2. [Bouw de hardware](hardware.md)
 3. [Stel je wifi thuis in](wifi.md)

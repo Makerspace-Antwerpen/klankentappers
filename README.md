@@ -1,66 +1,47 @@
-# DBA measurement on raspberry pi with an i2s mic
+# Klankentappers omgevingsgeluidsensor
 
-## Balena
-This repo is structured to work with balena cloud. You can run the recordEvents.py script without balena but you'll need to provide the neccesary environment variables manualy in the shell where you run it.
-### Environment
-The project needs following ENV variables to run correctly:
-- AI_SAMPLE_DIR --> This is the folder where audio samples are stored.
-- EVENT_START_THRESHOLD_DB --> This is the amount the sound level can rise above the nominal before a event is stored in the ai sample directory.
-- EVENT_END_THRESHOLD --> This is the amount above the nominal sound level at which an event is ended.
-- EVENT_PADDING_TIME --> This is the amount of time that is added on the end en beginning of each audio sample.
-- MIC_AUDIODEVICE --> This is the audiodevice to do the recording with. 1 for the i2s mic.
-- MIC_REF_DBA --> This is the sound level in dBa for which a reference RMS level is given.
-- MIC_REF_RMS --> This is the RMS level of the mic at the given dBa sound level. This value can be aquired with the setup.py script in the src directory
-- TB_INTERVAL_TIME --> This is the interval between thingsboard updates.
-- TB_SERVER --> This is the thingsboard server to connect with.
-- TB_SECRET --> This is the access token to use for connecting to the thingsboard server.
+Nauwkeurige dBA metingen met een Raspberry Pi en een I2S MEMS microfoon, voor citizen science projecten.
 
+![klankentapper](/documentation/imgs/hardware_windkap.png)
 
+## Over Klankentappers
 
-## Basic PI setup
-### connections between i2s and pi
-- Mic 3V to PI 3.3V
-- Mic GND to PI GND
-- Mic SEL to PI GND
-- Mic BCLK to BCM 18 (pin 12)
-- Mic DOUT to BCM 20 (pin 38)
-- Mic LRCL to BCM 19 (pin 35)
+De klankentapper is een sensor waarmee je het omgevingsgeluid rond je huis kan meten. Op een online dashboard kan je de hoeveelheid omgevingsgeluid rond je huis bekijken. De sensor bevat een computer (Raspberry Pi) en een op maat gemaakte printplaat met een microfoon. Op de computer berekenen we heel precies de hoeveelheid geluid uit, in dBA, dat is een maat van geluid die is afgestemd op het menselijk oor. 
 
-### Basic setup pi
-starting from basic raspberry PI OS
+Een Klankentapper is een open source omgevingsgeluidsensor, ontwikkeld door [Makerspace Antwerpen](https://www.makerspacea.be/) voor het [imec Hackable City of Things](https://www.imeccityofthings.be/en/projecten/hackable-city-of-things_2) initiatief, in samenwerking met [Gents Milieufront](https://www.gentsmilieufront.be/) en [Bewonersgroep Luchtbal Noord](https://www.facebook.com/BewonersgroepLuchtbalNoord/), en wetenschappelijk ondersteund door de [imec Waves onderzoeksgroep](https://www.waves.intec.ugent.be/).
 
-```
-sudo apt update && apt upgrade
-sudo apt install python3-pip libsndfile1 libportaudio2 libatlas-base-dev
-sudo pip3 install --upgrade adafruit-python-shell
-wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/i2smic.py
-sudo python3 i2smic.py
-pip3 install numpy soundfile sounddevice scipy
-```
+Dit ontwikkelingsproject is momenteel in een Proof-of-Concept fase. Tijdens de zomer van 2021 testen we in Gent en Antwerpen 10 omgevingsgeluidsensoren uit, om te leren hoe precies ze omgevingsgeluid kunnen meten en hoe bestendig ze zijn tegen buiten staan.
 
+## Wat is een klankentapper?
 
-You can test wether the mic is working with:
-```bash
-# to list mic's available
-arecord -l
+Een [hardware](/hardware/) sensor met [sofware](/src/), [handleiding](/documentation/) en cloud componenten.
 
-# to record a wav file of 1 second
-arecord -D plughw:0 -c1 -d 1 -r 48000 -f S32_LE -t wav -V mono -v output.wav
-# -D plughw:0 --> soundcard 0 selecteren
-# -c1 --> er is maar 1 channel
-# -d n --> zorgt ervoor dat er slechts n seconden worden opgenomen. Kan worden weggelaten
-# -r n --> sample rate
-# -f x --> sample format zie man page arecord
-# -t wav --> output type wav
-# -V mono --> VU-meter mono
-# -v verbose --> meer info voor debug
-```
-Don't forget to set the environment variables before running the scripts. the db-compare.py and setup.py scripts are made to run on a regular py and only need/generate a config file. The recordEvents.py script is made to run on a balena pi and needs the environment variables to be setup.
+### Hardware om een omgevingsgeluidsensor te bouwen
 
-### Balena pi
-This service exists of 2 containers managed by a docker compose. The wifi connect container is the default of balena. The meter container runs the actual sound meter.
-Wifi container is a submodule so it might be needed to download it seperatly.
+Deze repository bevat het [hardware ontwerp](/hardware/) om een nauwkeurige dBA sensor te maken op basis van een Raspberry Pi 4 en een custom microfoonprintplaat met een [Infineon IM69D120](https://www.infineon.com/cms/en/product/sensor/mems-microphones/mems-microphones-for-consumer/im69d120/) MEMS microfoon. Verder werden zoveel mogelijk off-the-shelf onderdelen, 3D prints en lasercuts gebruikt. 
 
-## python scripts
-In the src/ folder there are several scripts. The recordEvents.py records events that happen around the sensor. Event sensitivity can be set with the env vars. The mic section of the env vars can be generated with thes setup.py script. 
+In onze [handleiding](/documentation/) vind je de bill of materials en een beschrijving om een klankentapper te bouwen.
 
+#### Technologiekeuze
+
+Na een vergelijking van ST MP34DT01-M, Knowles SPH0645LM4H, Vesper VM3000 en Infineon IM69D120 leerden we dat de laatste met goede nauwkeurigheid (<±1.5dBA) kan ingezet worden om op citizen science manier in te zetten om omgevingsgeluid te meten. De nauwkeurigheid van de microfoon en de hardware van de volledige sensor werd uitvoerig getest in de anechoïsche kamer van imec Waves. 
+
+We ontwikkelden voor de Infineon IM69D120 microfoon een kleine printplaat. Ze bevat naast de microfoon ook een [Analog Devices ADAU7002](https://www.analog.com/en/products/adau7002.html#product-overview) PDM-naar-I2S converter chip. Hierdoor kan je de audiodata zowel in I2S als in PDM formaat uitlezen. Dankzij de consistentie van de microfoons onder elkaar kan de microfoon met 1 standaard calibratie (per batch geproduceerde microfoons) gebruikt worden voor citizen science doeleinden.
+
+#### Future work
+
+De omgevingsgeluidsensor is momenteel in een Proof-of-Concept fase. Tijdens de zomer van 2021 leren we hoe goed we omgevingsgeluid kunnen meten en hoe goed de sensor bestand is tegen slecht weer. In de toekomst, na review van de PoC hopen we een betere iteratie te ontwikkelen. Mogelijk ontwikkelen we ook een eenvoudigere versie met een 
+
+### Software om omgevingsgeluiden te analyseren
+
+Deze repository bevat de [software](/src/), in Python, om de data van de microfoon correct in te lezen in de Raspberry Pi, ze te corrigeren voor gekende limitaties van MEMS microfoons met IIR filters, ze te calibreren, er correct dBA uit te berekenen, 1/3 octaafbanden te berekenen en geluidsgebeurtenissen te detecteren.
+
+#### Future work
+
+Tijdens de Proof-of-Concept fase wordt deze software aan een langdurige test onderworpen.
+
+Met AI willen we on-edge omgevingsgeluiden herkennen. Zo willen we bijvoorbeeld automatisch de bron van gebeurtenissen herkennen, zoals een auto, een tram, een gesprek of een werken in de buurt. Door de classificatie van geluiden op de sensor te doen houden we geen privacy-gevoelige context van geluidsopnames bij en onthouden we enkel de anonieme geberutenissen, bvb "een auto, 67.3dBA". Door de Raspberry Pi te gebruiken, kunnen we de herkenning van geluiden mogelijk maken. We bestuderen tijdens de PoC of het mogelijk is geluidsbronnen goed te herkennen met AI.
+
+### Internet of Things stack om de data online te volgen en monitoren
+
+Tijdens de Proof-of-Concept fase pushen we de data (dBA) naar een Thingsboard setup. Per device zijn dashboards beschikbaar. We monitoren de devices en distribueren over-the-air software updates naar de toestellen met Balena.
