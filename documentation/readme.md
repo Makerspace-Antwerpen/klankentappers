@@ -2,9 +2,15 @@
 
 ![device](/documentation/imgs/hardware_windkap.png)
 
+## Stappen
+
+1. [Bereid de SD kaart voor met een Balena image, of met de Python scripts in deze repository](software.md)
+2. [Bouw de hardware](hardware.md)
+3. [Stel je wifi thuis in](wifi.md)
+
 ## Benodigdheden
 
-Off the shelf
+### Off the shelf
 
 * 1 [Rapberry Pi 4 8GB](https://www.mouser.be/ProductDetail/Raspberry-Pi/RPI4-MODBP-4GB-BULK)
 * 1 [SD kaart 16GB of groter](https://www.alternate.be/SanDisk/Extreme-microSDHC-32-GB-geheugenkaart/html/product/1363777)
@@ -19,16 +25,11 @@ Off the shelf
 * 1 cable tie
 * 1 M3x6x1 nylon o-ring
 * elektrische isolatietape
+* secondelijm
 
-Custom design
+### Custom design
 
-* 1 microfoon PCB
-* 1 lasercut standoff plaat
-* 1 wartel schroefdraad
-* 1 warteldeksel
-
-## Bouwen
-
-1. [Bereid de SD kaart voor met een Balena image, of met de Python scripts in deze repository](software.md)
-2. [Bouw de hardware](hardware.md)
-3. [Stel je wifi thuis in](wifi.md)
+* 1 [microfoon PCB](https://github.com/Makerspace-Antwerpen/infineon-69D120-adau7002-breakout-pcb)
+* 1 [lasercut standoff plaat](/hardware/baseplate/baseplate.svg)
+* 1 [wartel schroefdraad](/hardware/cablegland/cablegland.stl)
+* 1 [warteldeksel](/hardware/cablegland/cap.stl)
