@@ -28,6 +28,8 @@ Na een vergelijking van ST MP34DT01-M, Knowles SPH0645LM4H, Vesper VM3000 en Inf
 
 We ontwikkelden voor de Infineon IM69D120 microfoon een kleine [printplaat](https://github.com/Makerspace-Antwerpen/infineon-69D120-adau7002-breakout-pcb). Ze bevat naast de microfoon ook een [Analog Devices ADAU7002](https://www.analog.com/en/products/adau7002.html#product-overview) PDM-naar-I2S converter chip. Hierdoor kan je de audiodata zowel in I2S als in PDM formaat uitlezen. Dankzij de consistentie van de microfoons onder elkaar kan de microfoon met 1 standaard calibratie (per batch geproduceerde microfoons) gebruikt worden voor citizen science doeleinden.
 
+![PCB](/documentation/imgs/hardware_pcb.png)
+
 #### Future work
 
 De omgevingsgeluidsensor is momenteel in een Proof-of-Concept fase. Tijdens de zomer van 2021 leren we hoe goed we omgevingsgeluid kunnen meten en hoe goed de sensor bestand is tegen slecht weer. In de toekomst, na review van de PoC, hopen we een betere iteratie te ontwikkelen. Mogelijk ontwikkelen we ook een eenvoudigere versie op basis van een ESP32.
@@ -45,3 +47,5 @@ Met AI willen we on-edge omgevingsgeluiden herkennen. Zo willen we bijvoorbeeld 
 ### Internet of Things stack om de data online te volgen en monitoren
 
 Tijdens de Proof-of-Concept fase pushen we de data (dBA) naar een Thingsboard setup. Per device zijn dashboards beschikbaar. We monitoren de devices en distribueren over-the-air software updates naar de toestellen met Balena.
+
+![dashboard](/documentation/imgs/cloud_dashboard.png)
