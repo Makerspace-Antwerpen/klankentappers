@@ -14,7 +14,7 @@ Dit ontwikkelingsproject is momenteel in een Proof-of-Concept fase. Tijdens de z
 
 ## Wat is een klankentapper?
 
-Een [hardware](/hardware/) sensor met [sofware](/src/), [handleiding](/documentation/) en cloud componenten.
+Een [hardware](/hardware/) sensor met [software](/src/), [handleiding](/documentation/) en cloud componenten.
 
 ### Hardware om een omgevingsgeluidsensor te bouwen
 
@@ -24,13 +24,13 @@ In onze [handleiding](/documentation/) vind je de bill of materials en een besch
 
 #### Technologiekeuze
 
-Na een vergelijking van ST MP34DT01-M, Knowles SPH0645LM4H, Vesper VM3000 en Infineon IM69D120 leerden we dat de laatste met goede nauwkeurigheid (<±1.5dBA) kan ingezet worden om op citizen science manier in te zetten om omgevingsgeluid te meten. De nauwkeurigheid van de microfoon en de hardware van de volledige sensor werd uitvoerig getest in de anechoïsche kamer van imec Waves. 
+Na een vergelijking van ST MP34DT01-M, Knowles SPH0645LM4H, Vesper VM3000 en Infineon IM69D120 leerden we dat de laatste met goede nauwkeurigheid (<±1.5dBA) kan ingezet worden om op citizen science manier omgevingsgeluid te meten. De nauwkeurigheid van de microfoon en de hardware van de volledige sensor werd uitvoerig getest in de anechoïsche kamer van imec Waves. 
 
-We ontwikkelden voor de Infineon IM69D120 microfoon een kleine printplaat. Ze bevat naast de microfoon ook een [Analog Devices ADAU7002](https://www.analog.com/en/products/adau7002.html#product-overview) PDM-naar-I2S converter chip. Hierdoor kan je de audiodata zowel in I2S als in PDM formaat uitlezen. Dankzij de consistentie van de microfoons onder elkaar kan de microfoon met 1 standaard calibratie (per batch geproduceerde microfoons) gebruikt worden voor citizen science doeleinden.
+We ontwikkelden voor de Infineon IM69D120 microfoon een kleine [printplaat](https://github.com/Makerspace-Antwerpen/infineon-69D120-adau7002-breakout-pcb). Ze bevat naast de microfoon ook een [Analog Devices ADAU7002](https://www.analog.com/en/products/adau7002.html#product-overview) PDM-naar-I2S converter chip. Hierdoor kan je de audiodata zowel in I2S als in PDM formaat uitlezen. Dankzij de consistentie van de microfoons onder elkaar kan de microfoon met 1 standaard calibratie (per batch geproduceerde microfoons) gebruikt worden voor citizen science doeleinden.
 
 #### Future work
 
-De omgevingsgeluidsensor is momenteel in een Proof-of-Concept fase. Tijdens de zomer van 2021 leren we hoe goed we omgevingsgeluid kunnen meten en hoe goed de sensor bestand is tegen slecht weer. In de toekomst, na review van de PoC hopen we een betere iteratie te ontwikkelen. Mogelijk ontwikkelen we ook een eenvoudigere versie met een 
+De omgevingsgeluidsensor is momenteel in een Proof-of-Concept fase. Tijdens de zomer van 2021 leren we hoe goed we omgevingsgeluid kunnen meten en hoe goed de sensor bestand is tegen slecht weer. In de toekomst, na review van de PoC, hopen we een betere iteratie te ontwikkelen. Mogelijk ontwikkelen we ook een eenvoudigere versie op basis van een ESP32.
 
 ### Software om omgevingsgeluiden te analyseren
 
