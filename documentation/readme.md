@@ -10,6 +10,8 @@
 
 ## Benodigdheden
 
+![BOM](/documentation/imgs/hardware_bom.png)
+
 ### Off the shelf
 
 * 1 [Rapberry Pi 4 8GB](https://www.mouser.be/ProductDetail/Raspberry-Pi/RPI4-MODBP-4GB-BULK)
