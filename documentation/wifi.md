@@ -14,9 +14,11 @@ Gebruik je smartphone om met het netwerk genaamd "WiFi Connect" te verbinden.
 
 ## Geef je wifi gegevens in
 
-In het login scherm kan je de naam van je wifi netwerk kiezen en je paswoord ingeven. Druk daarna op de "connect" button en dan zal je device connecteren met je thuisnetwerk.
+In het loginscherm kan je de naam van je wifi netwerk kiezen en je paswoord ingeven. Druk daarna op de "connect" button en dan zal je device connecteren met je thuisnetwerk.
 
 ![Connect](/documentation/imgs/wifi_login.png)
+
+Geeft je telefoon geen loginscherm? Ga dan met je browser naar portal.to terwijl je met de wifi geconnecteerd ben, je kan de juiuste wifi gegevens dan wel ingeven.
 
 ## Gegevens zijn persistent
 
