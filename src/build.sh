@@ -138,7 +138,6 @@ function get_and_build()
 		failedVersions+=" $version"
 		return
 	fi
-
 	# Kernel headers for some devices need a few workarounds to build. These workarounds either effect
 	# the build environment. Or the headers were incorrectly generated during the os build stage.
 	# The full kernel source tarball available from v2.30+ should always work.
@@ -151,6 +150,8 @@ function get_and_build()
 	fi
 
 	pop
+
+	/usr/src/app/temp_workaround.sh $tmp_path
 
 	# Now create a copy of the module directory.
 	rm -rf "$output_dir"
