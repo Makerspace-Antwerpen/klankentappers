@@ -2,6 +2,7 @@
 
 import queue
 import os
+from lib.tertsMeasure import TertsMeasure
 import rx
 from rx import operators as ops
 import time
@@ -11,6 +12,7 @@ import sounddevice as sd
 import numpy as np
 import configparser
 from lib.dbaMeasure import DBAMeasure
+from lib.tertsMeasure import TertsMeasure
 from lib.movingAverage import MovingAverage
 from micSetup.infineon import micSetup
 from lib.tbConnection import TBConnection
@@ -57,6 +59,7 @@ AI_SAMPLE_DIR = os.environ['AI_SAMPLE_DIR']
 mic = micSetup()
 mic.setAudioDevice(MIC_AUDIODEVICE)
 dbaMeasure = DBAMeasure(MIC_REF_RMS, MIC_REF_DBA)
+tertsMeasure = TertsMeasure(48000, MIC_REF_RMS, MIC_REF_DBA)
 dbaMA = MovingAverage(MEASURERMENTS_PER_SEC * 1800)
 dbaShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 300)
 dbaVeryShortMA = MovingAverage(MEASURERMENTS_PER_SEC * 5)
@@ -75,7 +78,8 @@ audioDataSubject = rx.subject.ReplaySubject(buffer_size = 8 * EVENT_PADDING_TIME
 # callbacks for use by mic
 def dataCallback(indata):
     dba = dbaMeasure.dbaFromInput(indata.copy())
-    audioDataSubject.on_next(tuple((dba, indata.copy(), time.time())))
+    terts = tertsMeasure.calcTertsBands(indata.copy())
+    audioDataSubject.on_next(tuple((dba, indata.copy(), time.time(), terts)))
     
 
 
@@ -110,7 +114,7 @@ time.sleep(EVENT_PADDING_TIME + 1)
 audioDataSubject.subscribe(dbaMA)
 audioDataSubject.subscribe(dbaVeryShortMA)
 audioDataSubject.subscribe(dbaShortMA)
-# audioDataSubject.subscribe(eventRecorder, scheduler=detectionScheduler)
+audioDataSubject.subscribe(eventRecorder, scheduler=detectionScheduler)
 audioDataSubject.subscribe(
     on_next=updateTB
 )

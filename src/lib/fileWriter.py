@@ -23,8 +23,11 @@ class FileWriter(rx.core.typing.Observer):
                 del(self.subscription)
                 self.on_completed()
                 return
+        tertsString = ""
+        for terts in val[3]:
+            tertsString += str(terts) + "\t"
         self.audioFile.write(val[1])
-        self.metaFile.write(str(val[0]) + "\n")
+        self.metaFile.write(tertsString + "\n")
 
     def on_error(self, error):
         print(error)
