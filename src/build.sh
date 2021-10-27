@@ -151,7 +151,7 @@ function get_and_build()
 
 	pop
 
-	/usr/src/app/temp_workaround.sh $tmp_path
+	# /usr/src/app/temp_workaround.sh $tmp_path
 
 	# Now create a copy of the module directory.
 	rm -rf "$output_dir"
@@ -159,7 +159,7 @@ function get_and_build()
 	cp -R "$module_dir"/* "$output_dir"
 
 	push "$output_dir"
-	make -C "$tmp_path" M="$PWD" modules
+	make -C "$tmp_path" M="$PWD" modules V=1
 	pop
 
 	rm -rf "$tmp_path"

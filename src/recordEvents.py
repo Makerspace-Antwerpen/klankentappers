@@ -30,13 +30,22 @@ MIC_REF_RMS = float(os.environ['MIC_REF_RMS'])
 MIC_REF_DBA = float(os.environ['MIC_REF_DBA'])
 MIC_AUDIODEVICE = int(os.environ['MIC_AUDIODEVICE'])
 
+# ENV variables
+## interval time between thingsboard updates
 TB_INTERVAL_TIME = int(os.environ['TB_INTERVAL_TIME'])
+## tb server to connect to
 TB_SERVER = os.environ['TB_SERVER']
+## device key for thingsboard
 TB_SECRET = os.environ['TB_SECRET']
+## Amount of measurements per second
 MEASURERMENTS_PER_SEC = 8
+## Amount of time that needs to be recorded extra before and after a sound above the threshold
 EVENT_PADDING_TIME = int(os.environ['EVENT_PADDING_TIME'])
+## Amount of db a sound needs to be above the logarithmic moving average of the past 30 minutes to be considered an event
 EVENT_START_THRESHOLD_DB = int(os.environ['EVENT_START_THRESHOLD_DB'])
+## Amount of db a sound needs to stay above the logarithmic moving average of the past 30 minutes to be considered an event
 EVENT_END_THRESHOLD = int(os.environ['EVENT_END_THRESHOLD'])
+## Directory to store recorded audiosamples in
 AI_SAMPLE_DIR = os.environ['AI_SAMPLE_DIR']
 
 

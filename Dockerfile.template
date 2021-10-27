@@ -1,23 +1,32 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python:3.9.1
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python:3.8.12-bullseye
 
-RUN install_packages curl wget build-essential libelf-dev awscli bc flex libssl-dev python bison alsa-utils libportaudio2 libsndfile1
+# RUN apt-get update -y
+RUN install_packages curl apt-utils wget build-essential libelf-dev awscli bc flex libssl-dev python bison alsa-utils libportaudio2 libsndfile1 unzip
 
-#TODO pip modules still need to be adapted for full use of the repo
-RUN pip install sounddevice configparser numpy rx scipy paho-mqtt soundfile
+
+RUN pip install awscli --upgrade --user
 
 COPY ./src /usr/src/app
 WORKDIR /usr/src/app
 
 # add gcc 10 for building kernel module
-RUN echo 'deb http://deb.debian.org/debian testing main' >> /etc/apt/sources.list && install_packages gcc-9 libc6-dev
+RUN echo 'deb http://deb.debian.org/debian testing main' >> /etc/apt/sources.list && apt-get update --fix-missing && apt-get upgrade && install_packages gcc-9 
+RUN install_packages linux-headers-generic libc6-dev
+
+RUN install_packages groff less
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install
 
 
 # build the kernel module for the i2s mic
-ENV VERSION '2.75.0+rev1.prod'
+# IMPORTANT replace the version env with the balena OS version seen in the balena dashboard
+ENV VERSION '2.75.0+rev1.prod 2.85.2+rev3.prod'
 ENV UDEV=on
 RUN BALENA_MACHINE_NAME=%%BALENA_MACHINE_NAME%% ./build.sh build --device %%BALENA_MACHINE_NAME%% --os-version "$VERSION" --src i2s_mic_module
 
+# RUN pip install -r requirements.txt
+#TODO pip modules still need to be adapted for full use of the rep
+RUN pip install sounddevice configparser numpy rx  paho-mqtt soundfile scipy
 
+# RUN install_packages python3-scipy
 
-CMD ["bash", "/usr/src/app/wrapper.sh"]
-#CMD [ "balena-idle" ]
+CMD [ "balena-idle" ]
