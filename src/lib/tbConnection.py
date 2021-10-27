@@ -7,10 +7,25 @@ import time
 
 
 class TBConnection:
+    def on_connect(self, client, userdata, flags, rc):
+        '''
+        we add a callback function in order to capture a bad connection due to e.g. non-functional DNS servers
+        '''
+        if rc == 0:
+            self.client.connected_flag = True  # set flag
+            print("connected OK")
+        else:
+            print("Bad connection Returned code=", rc)
+
     def __init__(self, interval, host, port, secret):
         self.client = mqtt.Client()
+        self.mqtt.Client.connected_flag = False  # create flag in class
         self.client.username_pw_set(secret)
+        self.client.on_connect = self.on_connect
         self.client.connect(host, port)
+        while not self.client.connected_flag:  # wait in loop
+            print("No connection established yet")
+            time.sleep(1)
         self.client.loop_start()
         self.interval = interval
         self.telemetry = dict()
@@ -31,20 +46,14 @@ class TBConnection:
         self.lock.release()
         self.client.publish("v1/devices/me/telemetry", sendJson)
 
-        
-        
-    
     def sendThread(self):
         while True:
             time.sleep(self.interval)
             self.sendTelemetry()
-    
+
     def startTelemetry(self):
         self.thread.start()
+
     def stopTelemetry(self):
         self.end = True
         self.thread.join()
-
-    
-    
-    
