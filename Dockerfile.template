@@ -25,7 +25,7 @@ RUN BALENA_MACHINE_NAME=%%BALENA_MACHINE_NAME%% ./build.sh build --device %%BALE
 
 # RUN pip install -r requirements.txt
 #TODO pip modules still need to be adapted for full use of the rep
-RUN pip install sounddevice configparser numpy rx  paho-mqtt soundfile scipy
+RUN pip install sounddevice configparser  rx  paho-mqtt soundfile numpy scipy
 
 # RUN install_packages python3-scipy
 

@@ -19,14 +19,14 @@ class TBConnection:
 
     def __init__(self, interval, host, port, secret):
         self.client = mqtt.Client()
-        self.mqtt.Client.connected_flag = False  # create flag in class
+        self.client.connected_flag = False  # create flag in class
         self.client.username_pw_set(secret)
         self.client.on_connect = self.on_connect
         self.client.connect(host, port)
+        self.client.loop_start()
         while not self.client.connected_flag:  # wait in loop
             print("No connection established yet")
             time.sleep(1)
-        self.client.loop_start()
         self.interval = interval
         self.telemetry = dict()
         self.lock = threading.Lock()
