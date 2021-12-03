@@ -49,3 +49,33 @@ Met AI willen we on-edge omgevingsgeluiden herkennen. Zo willen we bijvoorbeeld 
 Tijdens de Proof-of-Concept fase pushen we de data (dBA) naar een Thingsboard setup. Per device zijn dashboards beschikbaar. We monitoren de devices en distribueren over-the-air software updates naar de toestellen met Balena.
 
 ![dashboard](/documentation/imgs/cloud_dashboard.png)
+
+
+### installatie
+
+1. Balena CLI omgeving
+2. install script om environment variables toe te voegen
+3. thingsboard optioneel momenteel
+
+
+### Balena omgeving
+ 
+#### ENVIRONMENT VARIABLES
+
+Stel volgende environment variables in in het dashboard. De correcte waardes verkrijg je via het setup scherm enerzijds en het dashboard dat je zelf opstelt anderzijds (thingsboard in dit geval).
+
+<!-- TODO write more extensive -->
+
+![ENV variables](./documentation/imgs/ENV_vars.png)
+
+#### DEVICE CONFIGURATION
+
+in het balena dashboard, zorg dat je volgende parameter toevoegt:
+
+```bash
+"i2s=on"
+```
+
+bij `Define DT parameters`
+
+![dt parameters](./documentation/imgs/dt_parameters.png)
