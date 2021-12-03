@@ -12,7 +12,13 @@ class Mic:
         self.sd = sd
         self.windowsPerSecond = 8
         self.audioSampleRate = 48000
-        self.audioDevice = 1
+        audioDevices = self.sd.query_devices()
+        print(audioDevices)
+        for idx, i in enumerate(audioDevices):
+            if ('snd_rpi_i2s_card' in i["name"]):
+                self.audioDevice = idx
+                print(idx, i)
+        # self.audioDevice = 1
 
     def addCallback(self, callBack):
         self.callbackList.append(callBack)
